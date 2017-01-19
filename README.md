@@ -11,4 +11,4 @@ linux releases:
 
 Yocto 2.1
 ----------
-Branch
+Branch [processor-sdk-linux-03.01.00] (https://github.com/ADVANTECH-Corp/linux-ti/tree/processor-sdk-linux-03.01.00)
