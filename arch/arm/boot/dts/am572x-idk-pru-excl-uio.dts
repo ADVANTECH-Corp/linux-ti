@@ -466,3 +466,4 @@
 };
 
 #include "am57xx-evm-cmem.dtsi"
+#include "am572x-pru-uio.dtsi"

@@ -30,3 +30,5 @@
 		pixelclk-active = <1>;
 	};
 };
+
+#include "am57xx-evm-cmem.dtsi"

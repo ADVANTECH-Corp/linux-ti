@@ -320,3 +320,5 @@
 	max-frequency = <192000000>;
 	/delete-property/ mmc-hs200-1_8v;
 };
+
+#include "am57xx-evm-cmem.dtsi"

@@ -44,3 +44,5 @@
 &pru2_1 {
 	/delete-property/ ti,pruss-gp-mux-sel;
 };
+
+#include "am57xx-evm-cmem-am571x.dtsi"

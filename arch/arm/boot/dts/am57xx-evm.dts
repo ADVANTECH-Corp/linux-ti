@@ -94,3 +94,5 @@
 		>;
 	};
 };
+
+#include "am57xx-evm-cmem.dtsi"

@@ -482,3 +482,5 @@
 &omap_dwc3_2 {
 	extcon = <&extcon_usb2>;
 };
+
+#include "am57xx-evm-cmem-am571x.dtsi"
