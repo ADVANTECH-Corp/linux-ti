@@ -801,6 +801,27 @@ int phy_resume(struct phy_device *phydev)
 }
 EXPORT_SYMBOL(phy_resume);
 
+#ifdef CONFIG_ARCH_ADVANTECH
+/*
+* this is just force 100M 
+*/
+static int Check_force_100M_phy_support(void)
+{
+	struct device_node * node = NULL;
+	struct device_node * child=NULL;
+
+	node= of_find_compatible_node(NULL,NULL,"ti,dra7-cpsw");
+	if (node == NULL)
+	    return -ENOENT;
+
+	child= of_find_node_with_property(node,"force-100M-mode");
+	if (child == NULL) 
+	    return -ENOENT;
+
+	return 0;
+}
+#endif
+
 /* Generic PHY support and helper functions */
 
 /**
@@ -850,6 +871,12 @@ static int genphy_config_advert(struct phy_device *phydev)
 	 */
 	if (!(bmsr & BMSR_ESTATEN))
 		return changed;
+
+#ifdef CONFIG_ARCH_ADVANTECH
+	/* If Force 100M, then skip this logical. */
+	if( !Check_force_100M_phy_support() )
+		return changed;
+#endif
 
 	/* Configure gigabit if it's supported */
 	adv = phy_read(phydev, MII_CTRL1000);
@@ -1159,7 +1186,7 @@ int genphy_soft_reset(struct phy_device *phydev)
 	ret = phy_write(phydev, MII_BMCR, BMCR_RESET);
 	if (ret < 0)
 		return ret;
-
+	
 	return phy_poll_reset(phydev);
 }
 EXPORT_SYMBOL(genphy_soft_reset);

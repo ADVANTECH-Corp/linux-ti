@@ -403,19 +403,45 @@ static int ti_pipe3_get_clk(struct ti_pipe3 *phy)
 	}
 
 	if (of_device_is_compatible(node, "ti,phy-pipe3-pcie")) {
-		clk = devm_clk_get(dev, "dpll_ref");
-		if (IS_ERR(clk)) {
-			dev_err(dev, "unable to get dpll ref clk\n");
-			return PTR_ERR(clk);
-		}
-		clk_set_rate(clk, 1500000000);
+#ifdef CONFIG_ARCH_ADVANTECH
+		const __be32 *prop;
+		unsigned int psize;
+		
+		prop = of_get_property(node, "using_extern_clock", &psize);
+		if (prop && ((psize / sizeof (int)) % 4 == 0))
+		{
+			void __iomem *ctrl_base;
+			unsigned long shift,mask,val;
+			int i,len;
+			len = psize / sizeof (int);
+			for(i=0;i<len;i+=4)
+			{
+				ctrl_base = ioremap(be32_to_cpu(prop[i+0]), 4);
+				shift = be32_to_cpu(prop[i+1]);
+				mask = be32_to_cpu(prop[i+2]);
+				val = be32_to_cpu(prop[i+3]);
+				val = (__raw_readl(ctrl_base) & ~(mask<<shift)) | (val<<shift);
+				__raw_writel(val, ctrl_base);
+				iounmap(ctrl_base);
+			}
+		} else {
+#endif
+			clk = devm_clk_get(dev, "dpll_ref");
+			if (IS_ERR(clk)) {
+				dev_err(dev, "unable to get dpll ref clk\n");
+				return PTR_ERR(clk);
+			}
+			clk_set_rate(clk, 1500000000);
 
-		clk = devm_clk_get(dev, "dpll_ref_m2");
-		if (IS_ERR(clk)) {
-			dev_err(dev, "unable to get dpll ref m2 clk\n");
-			return PTR_ERR(clk);
+			clk = devm_clk_get(dev, "dpll_ref_m2");
+			if (IS_ERR(clk)) {
+				dev_err(dev, "unable to get dpll ref m2 clk\n");
+				return PTR_ERR(clk);
+			}
+			clk_set_rate(clk, 100000000);
+#ifdef CONFIG_ARCH_ADVANTECH
 		}
-		clk_set_rate(clk, 100000000);
+#endif
 
 		clk = devm_clk_get(dev, "phy-div");
 		if (IS_ERR(clk)) {
@@ -446,7 +472,7 @@ static int ti_pipe3_get_sysctrl(struct ti_pipe3 *phy)
 	phy->phy_power_syscon = syscon_regmap_lookup_by_phandle(node,
 							"syscon-phy-power");
 	if (IS_ERR(phy->phy_power_syscon)) {
-		dev_dbg(dev,
+		dev_info(dev,
 			"can't get syscon-phy-power, using control device\n");
 		phy->phy_power_syscon = NULL;
 	} else {
@@ -478,7 +504,7 @@ static int ti_pipe3_get_sysctrl(struct ti_pipe3 *phy)
 		phy->pcs_syscon = syscon_regmap_lookup_by_phandle(node,
 								  "syscon-pcs");
 		if (IS_ERR(phy->pcs_syscon)) {
-			dev_dbg(dev,
+			dev_info(dev,
 				"can't get syscon-pcs, using omap control\n");
 			phy->pcs_syscon = NULL;
 		} else {

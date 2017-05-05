@@ -200,6 +200,15 @@ config KEYBOARD_GPIO
 	  To compile this driver as a module, choose M here: the
 	  module will be called gpio_keys.
 
+config SLEEP_BTN
+	tristate "Sleep GPIO Button"
+	depends on GPIOLIB || COMPILE_TEST
+	help
+	  This driver implements support for GPIO sleep button.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called sleep_btn.
+
 config KEYBOARD_GPIO_POLLED
 	tristate "Polled GPIO buttons"
 	depends on GPIOLIB

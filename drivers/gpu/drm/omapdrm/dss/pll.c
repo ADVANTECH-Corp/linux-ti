@@ -230,8 +230,12 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 	n_stop = min((unsigned)(clkin / fint_hw_min), hw->n_max);
 
 	pll_max = pll_max ? pll_max : ULONG_MAX;
-
+	
+#ifdef CONFIG_ARCH_ADVANTECH
+	for (n = n_start; n <= n_stop; ++n) {
+#else
 	for (n = n_stop; n >= n_start; --n) {
+#endif
 		fint = clkin / n;
 
 		m_start = max(DIV_ROUND_UP(DIV_ROUND_UP(pll_min, fint), 2),
@@ -240,7 +244,11 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 				(unsigned)(pll_hw_max / fint / 2),
 				hw->m_max);
 
+#ifdef CONFIG_ARCH_ADVANTECH
+		for (m = m_start; m <= m_stop; ++m) {
+#else
 		for (m = m_stop; m >= m_start; --m) {
+#endif
 			clkdco = 2 * m * fint;
 
 			if (func(n, m, fint, clkdco, data))

@@ -122,4 +122,7 @@ config DISPLAY_PANEL_TLC59108
 		chips. These are found on the LCD daughter boards of DRA7 and
 		DRA72 EVMs.
 
+config FB_CH7055
+	depends on I2C && FB
+	tristate "Chrontel CH7055 VGA Interface Chip"
 endmenu

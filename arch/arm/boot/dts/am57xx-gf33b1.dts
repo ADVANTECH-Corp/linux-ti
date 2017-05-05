@@ -1,0 +1,551 @@
+/*
+ * Copyright (C) 2015 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "am5718-common.dtsi"
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+
+/ {
+	model = "EBC-GF33";
+	compatible = "ti,am5718-gf33", "ti,am5718", "ti,dra722", "ti,dra72", "ti,dra7";
+
+	aliases {
+		display0 = &lcd0;
+		rtc0 = &rtc0;
+		serial4 = &uart6;
+		serial5 = &uart5;
+	};
+
+	reserved-memory {
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		ipu2_cma_pool: ipu2_cma@95800000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x95800000 0x0 0x3800000>;
+			reusable;
+			status = "okay";
+		};
+
+		dsp1_cma_pool: dsp1_cma@99000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x99000000 0x0 0x4000000>;
+			reusable;
+			status = "okay";
+		};
+
+		ipu1_cma_pool: ipu1_cma@9d000000 {
+			compatible = "shared-dma-pool";
+			reg = <0x0 0x9d000000 0x0 0x2000000>;
+			reusable;
+			status = "okay";
+		};
+
+		cmem_block_mem_0: cmem_block_mem@a0000000 {
+			reg = <0x0 0xa0000000 0x0 0x0c000000>;
+			no-map;
+			status = "okay";
+		};
+
+		/* Reserved the 512M for shared iobuf,Just for GF33.
+		   You can remove it on other project.	
+		*/	
+		cmem_block_mem_1: cmem_block_mem@c0000000 {
+			reg = <0x0 0xc0000000 0x0 0x20000000>;
+			no-map;
+			status = "okay";
+		};
+	};
+
+	cmem {
+		compatible = "ti,cmem";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		#pool-size-cells = <2>;
+		status = "okay";
+
+		cmem_block_0: cmem_block@0 {
+			reg = <0>;
+			memory-region = <&cmem_block_mem_0>;
+			cmem-buf-pools = <1 0x0 0x0c000000>;
+		};
+
+		cmem_block_1: cmem_block@1 {
+			reg = <1>;
+			memory-region = <&cmem_block_mem_1>;
+			cmem-buf-pools = <1 0x0 0x20000000>;
+		};	
+	};
+
+	/*
+	* LCD Pannel Setting 
+	*/
+	lcd0: display {
+		compatible = "osddisplays,osd070t1718-19ts", "panel-dpi";
+
+		label = "lcd";
+
+		/* enable-gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;*/
+
+		panel-timing {
+			clock-frequency = <65000000>;
+			hactive = <1024>;
+			vactive = <768>;
+			hfront-porch = <24>;
+			hback-porch = <160>;
+			hsync-len = <136>;
+			vback-porch = <29>;
+			vfront-porch = <3>;
+			vsync-len = <6>;
+			hsync-active = <0>;
+			vsync-active = <0>;
+			de-active = <1>;
+			pixelclk-active = <1>;
+		};
+
+		port {
+			lcd_in: endpoint {
+				remote-endpoint = <&dpi_out>;
+			};
+		};
+	};
+
+	/*
+	* LCD Backlight.
+	*/
+	backlight {
+		compatible = "pwm-backlight";
+		pwms = <&ehrpwm1 0 50000 0>;
+
+		/* Anything lower than 241 is no longer visible */
+		brightness-levels = <0 243 245 247 249 251 252 253 255>;
+
+		default-brightness-level = <8>;
+		/* we provide a physical power-supply for backlight!
+		* So, the power-supply propety is not needed!		
+		*/
+	};
+
+	gpio_keys {
+		compatible = "gpio-keys";
+		#address-cells = <1>;
+		#size-cells = <0>;
+		status = "disabled";
+
+		powerbtn {
+			label = "powerbtn";
+			linux,code = <KEY_POWER>;
+			gpios = <&gpio8 5 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
+
+/*
+* Display subsystem remote endport.
+*/
+&dss {
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port {
+			reg = <2>;
+
+			dpi_out: endpoint {
+				remote-endpoint = <&lcd_in>;
+				data-lines = <24>;
+			};
+		};
+	};
+};
+
+/*
+* Video input port.
+* vin1a & vin3a is enabled.
+*/
+/* Enable VIP module! */
+&vip1 {
+	status = "okay";
+};
+
+/* Binding the port. */
+&vin1a {
+	status = "disabled";
+	endpoint {
+		slave-mode;
+		bus-width = <8>;	/* Used data lines */
+		/*remote-endpoint = <&cam>;*/
+	};
+};
+&vin2a {
+	status = "disabled";
+	endpoint {
+		slave-mode;
+		bus-width = <8>;	/* Used data lines */
+		/*remote-endpoint = <&cam>;*/
+	};
+};
+
+/*
+* ehrPWM 2&3 module.
+*/
+&epwmss1 {
+	status = "okay";
+};
+&ehrpwm1 {
+	status = "okay";
+};
+
+&epwmss2 {
+	status = "okay";
+};
+&ehrpwm2 {
+	status = "okay";
+};
+
+/* 
+* Ethernet: 1 emac
+*/
+&mac {
+	status = "okay";
+	/delete-property/ dual_emac;
+};
+
+&cpsw_emac0 {
+	phy_id = <&davinci_mdio>, <6>;
+	force-100M-mode;
+};
+
+/* 
+* Enable sata
+*/
+&sata {
+	status = "okay";
+};
+
+/*
+* I2C bus configuration 1-5; 
+*/
+&i2c1 {
+	status = "okay";
+	clock-frequency = <400000>;
+
+	tps659038: tps659038@58 {
+		compatible = "ti,tps659038";
+		reg = <0x58>;
+		interrupt-parent = <&gpio1>;
+		interrupts = <0 IRQ_TYPE_LEVEL_LOW>;
+
+		#interrupt-cells = <2>;
+		interrupt-controller;
+
+		/****** Set all PMIC PAD reg as gpio pin *****/
+		ti,mux-pad1 = <0>;
+		ti,mux-pad2 = <0>;
+
+		ti,system-power-controller;
+
+		tps659038_pmic {
+			compatible = "ti,tps659038-pmic";
+
+			regulators {
+				smps12_reg: smps12 {
+					/* VDD_MPU */
+					regulator-name = "smps12";
+					regulator-min-microvolt = <850000>;
+					regulator-max-microvolt = <1250000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				smps3_reg: smps3 {
+					/* VDD_DDR EMIF1 EMIF2 */
+					regulator-name = "smps3";
+					regulator-min-microvolt = <1350000>;
+					regulator-max-microvolt = <1350000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				smps45_reg: smps45 {
+					/* VDD_DSPEVE on AM572 */
+					/* VDD_IVA + VDD_DSP on AM571 */
+					regulator-name = "smps45";
+					regulator-min-microvolt = <850000>;
+					regulator-max-microvolt = <1250000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				smps6_reg: smps6 {
+					/* VDD_CORE */
+					regulator-name = "smps6";
+					regulator-min-microvolt = <850000>;
+					regulator-max-microvolt = <1150000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				/* SMPS7 unused */
+
+				smps8_reg: smps8 {
+					/* VDD_1V8 */
+					regulator-name = "smps8";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				/* SMPS9 unused */
+
+				ldo1_reg: ldo1 {
+					/* VDD_SD */
+					regulator-name = "ldo1";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-boot-on;
+					regulator-always-on;
+				};
+
+				ldo2_reg: ldo2 {
+					/* VDD_SHV5 */
+					regulator-name = "ldo2";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo3_reg: ldo3 {
+					/* VDDA_1V8_PHYA */
+					regulator-name = "ldo3";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo4_reg: ldo4 {
+					/* VDDA_1V8_PHYB */
+					regulator-name = "ldo4";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldo9_reg: ldo9 {
+					/* VDD_RTC */
+					regulator-name = "ldo9";
+					regulator-min-microvolt = <1050000>;
+					regulator-max-microvolt = <1050000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldoln_reg: ldoln {
+					/* VDDA_1V8_PLL */
+					regulator-name = "ldoln";
+					regulator-min-microvolt = <1800000>;
+					regulator-max-microvolt = <1800000>;
+					regulator-always-on;
+					regulator-boot-on;
+				};
+
+				ldousb_reg: ldousb {
+					/* VDDA_3V_USB: VDDA_USBHS33 */
+					regulator-name = "ldousb";
+					regulator-min-microvolt = <3300000>;
+					regulator-max-microvolt = <3300000>;
+					regulator-boot-on;
+				};
+
+				regen1: regen1 {
+					/* VDD_3V3_ON */
+					regulator-name = "regen1";
+					regulator-boot-on;
+					regulator-always-on;
+				};
+			};
+		};
+
+		/*tps659038_rtc: tps659038_rtc {
+			compatible = "ti,palmas-rtc";
+			interrupt-parent = <&tps659038>;
+			interrupts = <8 IRQ_TYPE_EDGE_FALLING>;
+			wakeup-source;
+		};
+
+		tps659038_pwr_button: tps659038_pwr_button {
+			compatible = "ti,palmas-pwrbutton";
+			interrupt-parent = <&tps659038>;
+			interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
+			wakeup-source;
+			ti,palmas-long-press-seconds = <6>;
+		};
+
+		tps659038_gpio: tps659038_gpio {
+			compatible = "ti,palmas-gpio";
+			gpio-controller;
+			#gpio-cells = <2>;
+		};*/
+	};
+
+	rtc0: rtc@30  {
+		compatible = "s35390a";
+		reg = <0x30>;
+		interrupts-extended = <&crossbar_mpu GIC_SPI 2 IRQ_TYPE_EDGE_RISING>,
+				      <&dra7_pmx_core 0x424>;  /* GPIO interrupt*/
+
+		wakeup-source; /* Support wakeup.*/
+	};
+};
+
+/*
+* I2C3 for VGA
+*/
+&i2c2 {
+	status = "ok";
+	clock-frequency = <400000>;
+
+	ch7055: ch7055@76 {
+		compatible = "ch7055";
+		reg = <0x76>;
+	};
+};
+
+/*
+* I2C4 for C8051
+*/
+&i2c3 {
+	status = "okay";
+	clock-frequency = <50000>;
+
+	c8051f396@29 {
+		compatible = "c8051-wdt-i2c";
+		reg = <0x29>;
+		shutdown-time=<12>;/* 12s */
+		default-enable=<1>;
+		wdt-pwm = <&gpio8 4 GPIO_ACTIVE_HIGH>;
+		wdt-en = <&gpio8 15 GPIO_ACTIVE_HIGH>;
+	};
+};
+
+&i2c4 {
+	status = "okay";
+	clock-frequency = <100000>;	
+};
+&i2c5 {
+	status = "okay";
+	clock-frequency = <100000>;	
+};
+
+/*
+* MCSPI interface. 3 port,
+*/
+&mcspi2 {
+	status = "okay";
+	/* Please insert your slave device at there.*/
+	spidev0 {
+		compatible = "spidev";
+		reg = <0>;
+		spi-max-frequency = <48000000>;
+	};
+};
+
+&mcspi3 {
+	status = "okay";
+	spidev0 {
+	 	compatible = "spidev";
+		reg = <0>;
+		spi-max-frequency = <48000000>;
+	};
+};
+
+&mcspi4 {
+	status = "okay";
+	spidev0 {
+	 	compatible = "spidev";
+		reg = <0>;
+		spi-max-frequency = <48000000>;
+	};
+};
+
+/*
+* QSPI flash
+*/
+&qspi {
+	status = "okay";
+	spi-max-frequency = <12000000>;
+
+	/* W25Q32FVSSIG SPI Flash*/
+	m25p80@0 {
+		compatible = "w25q128";
+		spi-max-frequency = <12000000>;
+		reg = <0>;	/* CS address. */
+		spi-tx-bus-width = <1>;
+		spi-rx-bus-width = <4>;
+		spi-cpol;
+		spi-cpha;
+	};
+};
+
+/*
+* eMMC SD & Nand!
+*/
+&mmc1 {
+	status = "okay";
+
+	vmmc-supply = <&ldo1_reg>;
+	bus-width = <4>;
+	cd-gpios = <&gpio6 27 0>; /* gpio 219 */
+	max-frequency = <96000000>;
+	/delete-property/ sd-uhs-sdr104;
+	/delete-property/ sd-uhs-sdr50;
+	/delete-property/ sd-uhs-ddr50;
+	/delete-property/ sd-uhs-sdr25;
+	/delete-property/ sd-uhs-sdr12;
+};
+
+&mmc2 {
+	status = "okay";
+
+	vmmc-supply = <&vdd_3v3>;
+	bus-width = <8>;
+	ti,non-removable;
+	cap-mmc-dual-data-rate;
+	max-frequency = <96000000>;
+	no-1-8-v;
+	/delete-property/ mmc-hs200-1_8v;
+};
+
+/*
+* uart
+*/
+&uart3 {
+	status = "okay";
+	interrupts-extended = <&crossbar_mpu GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>,
+			      <&dra7_pmx_core 0x3f8>;
+};
+
+&aes2{
+	/* Let's disable the fuking aes module. */
+	status = "disabled";
+
+};
+
+&wdt2 {
+	status = "disabled";
+};
+
+&gpio8 {
+     ti,no-reset-on-init;
+     ti,no-idle-on-init;
+};
