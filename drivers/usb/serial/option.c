@@ -1969,6 +1969,13 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_INTERFACE_CLASS(0x2020, 0x4000, 0xff) },                /* OLICARD300 - MT6225 */
 	{ USB_DEVICE(INOVIA_VENDOR_ID, INOVIA_SEW858) },
 	{ USB_DEVICE(VIATELECOM_VENDOR_ID, VIATELECOM_PRODUCT_CDS7) },
+#ifdef CONFIG_ARCH_ADVANTECH
+	{ USB_DEVICE(0x05C6, 0x9090)},/* Quectel UC15*/
+        { USB_DEVICE(0x05C6, 0x9003)},/* Quectel UC20*/
+        { USB_DEVICE(0x05C6, 0x9215)},/* Quectel EC20*/
+        { USB_DEVICE(0x2C7C, 0x0125)},/* Quectel EC25/EC20 R2.0*/
+        { USB_DEVICE(0x2C7C, 0x0121)},/* Quectel EC21*/
+#endif
 	{ } /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, option_ids);
@@ -2004,6 +2011,10 @@ static struct usb_serial_driver option_1port_device = {
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
 #endif
+#ifdef CONFIG_ARCH_ADVANTECH
+	.reset_resume	   = usb_wwan_resume,
+#endif
+
 };
 
 static struct usb_serial_driver * const serial_drivers[] = {
