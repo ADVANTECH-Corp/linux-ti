@@ -992,10 +992,9 @@
 
 	vmmc-supply = <&ldo1_reg>;
 	bus-width = <4>;
-	cd-gpios = <&gpio6 27 0>; 
+	cd-gpios = <&gpio6 27 0>; /* gpio 219 */
 	cap-power-off-card;
 	keep-power-in-suspend;
-	ti,non-removable;
 	max-frequency = <96000000>;
 	/delete-property/ sd-uhs-sdr104;
 	/delete-property/ sd-uhs-sdr50;
@@ -1078,7 +1077,7 @@ btwilink {
 };
 */
 /* SDIO MMC */
-
+/*
 &mmc3 {
 	status = "okay";
 	vmmc-supply = <&vdd_3v3>;
@@ -1099,13 +1098,13 @@ btwilink {
 
 	#address-cells = <1>;
 	#size-cells = <0>;
-	/*wlcore: wlcore@0 {
+	wlcore: wlcore@0 {
 		compatible = "ti,wl1835";
 		reg = <2>;
 		interrupt-parent = <&gpio5>;
 		interrupts = <7 IRQ_TYPE_LEVEL_HIGH>;
-};*/
 };
+};*/
 
 /*
 * CPU Thermal 
