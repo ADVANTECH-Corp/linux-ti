@@ -77,6 +77,9 @@ config EVENT_TRACING
 	select CONTEXT_SWITCH_TRACER
 	bool
 
+config GPU_TRACEPOINTS
+	bool
+
 config CONTEXT_SWITCH_TRACER
 	bool
 
@@ -225,6 +228,7 @@ config ENABLE_DEFAULT_TRACERS
 	bool "Trace process context switches and events"
 	depends on !GENERIC_TRACER
 	select TRACING
+	select GPU_TRACEPOINTS
 	help
 	  This tracer hooks to various trace points in the kernel,
 	  allowing the user to pick and choose which trace point they

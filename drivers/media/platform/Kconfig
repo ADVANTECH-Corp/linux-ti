@@ -139,6 +139,9 @@ config VIDEO_TI_VIP
 	depends on VIDEO_DEV && VIDEO_V4L2 && SOC_DRA7XX
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
+	select VIDEO_TI_VPDMA
+	select VIDEO_TI_SC
+	select VIDEO_TI_CSC
 	---help---
 	Driver support for VIP module on certain TI SoC's
 	VIP = Video Input Port.
@@ -284,6 +287,9 @@ config VIDEO_TI_VPE
 	depends on HAS_DMA
 	select VIDEOBUF2_DMA_CONTIG
 	select V4L2_MEM2MEM_DEV
+	select VIDEO_TI_VPDMA
+	select VIDEO_TI_SC
+	select VIDEO_TI_CSC
 	default n
 	---help---
 	  Support for the TI VPE(Video Processing Engine) block
@@ -296,6 +302,36 @@ config VIDEO_TI_VPE_DEBUG
 	  Enable debug messages on VPE driver.
 
 endif # V4L_MEM2MEM_DRIVERS
+
+config VIDEO_TI_VPDMA_HELPER
+       tristate "TI VPDMA helper module"
+       depends on VIDEO_TI_VIP || VIDEO_TI_VPE
+       default n
+       ---help---
+       Video Port Direct Memory Access
+       Used with VIP and VPE on some TI SoC's (e.g. DRA7xx)
+       it provides a mem2mem, mem2device, device2mem DMA specifically
+       for transferring and manipulating video data.
+
+config VIDEO_TI_VPDMA_LOAD_FW
+	bool "Load VPDMA F/W from Kernel"
+	depends on VIDEO_TI_VPDMA_HELPER
+	default n
+	---help---
+	TI SoC's Video Port Direct Memory Access module
+	needs a firmware to be loaded. This can be loaded from
+	user space via udev event or it can be loaded from kernel itself
+	Say 'y' if you want the Video devices to be initialized early
+	in the bootup sequence.
+
+config VIDEO_TI_VPDMA
+	tristate
+
+config VIDEO_TI_SC
+	tristate
+
+config VIDEO_TI_CSC
+	tristate
 
 menuconfig V4L_TEST_DRIVERS
 	bool "Media test drivers"
