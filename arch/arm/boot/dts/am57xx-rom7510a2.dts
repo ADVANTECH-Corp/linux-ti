@@ -79,11 +79,11 @@
 		/* Reserved the 512M for shared iobuf,Just for GF33.
 		You can remove it on other project.	
 		*/	
-		cmem_block_mem_2: cmem_block_mem@c0000000 {
+		/*cmem_block_mem_2: cmem_block_mem@c0000000 {
 			reg = <0x0 0xC0000000 0x0 0x20000000>;
 			no-map;
 			status = "okay";
-		};
+		};*/
 	};
 
 	cmem {
@@ -105,11 +105,11 @@
 			memory-region = <&cmem_block_mem_1_ocmc3>;
 		};
 
-		cmem_block_2: cmem_block@2 {
+		/*cmem_block_2: cmem_block@2 {
 			reg = <2>;
 			memory-region = <&cmem_block_mem_2>;
 			cmem-buf-pools = <1 0x0 0x20000000>;
-		};	
+		};*/	
 	};
 
 	vtt_fixed: fixedregulator-vtt {
