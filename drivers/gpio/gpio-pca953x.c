@@ -293,7 +293,7 @@ exit:
 	return ret;
 }
 
-static int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
+ int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
 {
 	struct pca953x_chip *chip = to_pca(gc);
 	u32 reg_val;
@@ -660,6 +660,53 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH	
+static int adv_gpio_init(struct pca953x_chip *chip)
+{
+
+	unsigned int dir, dir_len, val_len;
+	int i,val;
+	const __be32 *direction;
+	const __be32 *value;
+	struct device_node *np;
+
+	np = of_find_compatible_node(NULL,NULL,"nxp,pca9538");
+	if (np == NULL) {
+	    np = of_find_compatible_node(NULL,NULL,"nxp,pca9555");
+	    if (np == NULL) {
+	        pr_err("Unable to find node\n");
+	        return -ENOENT;
+	    }
+	}
+	
+	if (np) {
+		direction = of_get_property(np, "default_direction", &dir_len);
+		if (direction == NULL)
+			return -ENOENT;
+		value = of_get_property(np, "default_direction", &val_len);
+		if (value == NULL)
+			return -ENOENT;
+		
+		dir_len = dir_len / sizeof(int);
+		val_len = val_len / sizeof(int);
+		if(dir_len != val_len)
+			return -ENOENT;
+		
+		for (i = 0; i < dir_len; i++) {
+			dir = be32_to_cpu(direction[i]);
+			gpio_request(chip->gpio_chip.base + i, "PCA-953XGPIO");
+			if(dir == 0){				
+				gpio_direction_input(chip->gpio_chip.base + i);
+			}else{
+				gpio_direction_output(chip->gpio_chip.base + i, value[i]);
+			}
+			gpio_export(chip->gpio_chip.base + i, 1);
+		}
+	}
+	return 0;
+}
+#endif
+
 static int pca953x_probe(struct i2c_client *client,
 				   const struct i2c_device_id *id)
 {
@@ -729,6 +776,10 @@ static int pca953x_probe(struct i2c_client *client,
 		if (ret < 0)
 			dev_warn(&client->dev, "setup failed, %d\n", ret);
 	}
+	
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH		
+	adv_gpio_init(chip);
+#endif
 
 	i2c_set_clientdata(client, chip);
 	return 0;

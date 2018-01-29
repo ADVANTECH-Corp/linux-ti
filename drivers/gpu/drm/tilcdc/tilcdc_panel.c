@@ -22,6 +22,9 @@
 #include <video/display_timing.h>
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH	
+	#include <linux/gpio.h>
+#endif
 
 #include "tilcdc_drv.h"
 
@@ -338,6 +341,35 @@ static struct tilcdc_panel_info *of_get_panel_info(struct device_node *np)
 	return info;
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH	
+static int am335x_lcd_init(void)
+{
+	unsigned int number,delay,len;
+	int i,val;
+	const __be32 *parp;
+	struct device_node *np;
+
+	np = of_find_compatible_node(NULL, NULL, "ti,tilcdc,panel");
+	if (np) {
+		parp = of_get_property(np, "adv_lcd_timing", &len);
+		if (parp == NULL)
+			return 0;
+		len = len / sizeof(int);
+		for (i = 0; i+2 < len; i+=3) {
+			number = be32_to_cpu(parp[i+0]);
+			val = be32_to_cpu(parp[i+1]);
+			delay = be32_to_cpu(parp[i+2]);
+
+			gpio_request(number, NULL);
+			gpio_direction_output(number, val);
+			mdelay(delay);
+		}
+	}
+
+	return 0;
+}
+#endif
+
 static int panel_probe(struct platform_device *pdev)
 {
 	struct device_node *bl_node, *node = pdev->dev.of_node;
@@ -345,6 +377,10 @@ static int panel_probe(struct platform_device *pdev)
 	struct tilcdc_module *mod;
 	struct pinctrl *pinctrl;
 	int ret;
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH	
+	am335x_lcd_init();
+#endif
 
 	/* bail out early if no DT data: */
 	if (!node) {
