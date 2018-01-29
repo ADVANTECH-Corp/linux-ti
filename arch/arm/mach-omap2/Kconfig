@@ -1,7 +1,7 @@
 menu "TI OMAP/AM/DM/DRA Family"
 	depends on ARCH_MULTI_V6 || ARCH_MULTI_V7
 
-config ARCH_ADVANTECH
+config ARCH_AM57XX_ADVANTECH
         bool "Support Advantech board"
         default n
 

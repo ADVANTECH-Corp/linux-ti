@@ -403,7 +403,7 @@ static int ti_pipe3_get_clk(struct ti_pipe3 *phy)
 	}
 
 	if (of_device_is_compatible(node, "ti,phy-pipe3-pcie")) {
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 		const __be32 *prop;
 		unsigned int psize;
 		
@@ -439,7 +439,7 @@ static int ti_pipe3_get_clk(struct ti_pipe3 *phy)
 				return PTR_ERR(clk);
 			}
 			clk_set_rate(clk, 100000000);
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 		}
 #endif
 

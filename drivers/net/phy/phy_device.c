@@ -801,7 +801,7 @@ int phy_resume(struct phy_device *phydev)
 }
 EXPORT_SYMBOL(phy_resume);
 
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 /*
 * this is just force 100M 
 */
@@ -872,7 +872,7 @@ static int genphy_config_advert(struct phy_device *phydev)
 	if (!(bmsr & BMSR_ESTATEN))
 		return changed;
 
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 	/* If Force 100M, then skip this logical. */
 	if( !Check_force_100M_phy_support() )
 		return changed;

@@ -231,7 +231,7 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 
 	pll_max = pll_max ? pll_max : ULONG_MAX;
 	
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 	for (n = n_start; n <= n_stop; ++n) {
 #else
 	for (n = n_stop; n >= n_start; --n) {
@@ -244,7 +244,7 @@ bool dss_pll_calc_a(const struct dss_pll *pll, unsigned long clkin,
 				(unsigned)(pll_hw_max / fint / 2),
 				hw->m_max);
 
-#ifdef CONFIG_ARCH_ADVANTECH
+#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
 		for (m = m_start; m <= m_stop; ++m) {
 #else
 		for (m = m_stop; m >= m_start; --m) {
