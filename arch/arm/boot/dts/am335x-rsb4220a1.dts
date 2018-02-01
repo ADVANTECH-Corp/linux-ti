@@ -18,7 +18,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
-	model = "RSB4220";
+	model = "RSB-4220";
 	compatible = "ti,am335x-evmsk", "ti,am33xx";
 
 	cpus {

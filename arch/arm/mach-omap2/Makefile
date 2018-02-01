@@ -16,6 +16,7 @@ clock-common				= clock.o
 secure-common				= omap-smc.o omap-secure.o
 
 obj-$(CONFIG_ARCH_AM57XX_ADVANTECH) += board.o
+obj-$(CONFIG_ARCH_AM335X_ADVANTECH) += board.o
 
 obj-$(CONFIG_ARCH_OMAP2) += $(omap-2-3-common) $(hwmod-common)
 obj-$(CONFIG_ARCH_OMAP3) += $(omap-2-3-common) $(hwmod-common) $(secure-common)
