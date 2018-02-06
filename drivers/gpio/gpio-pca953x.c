@@ -683,7 +683,7 @@ static int adv_gpio_init(struct pca953x_chip *chip)
 		direction = of_get_property(np, "default_direction", &dir_len);
 		if (direction == NULL)
 			return -ENOENT;
-		value = of_get_property(np, "default_direction", &val_len);
+		value = of_get_property(np, "default_value", &val_len);
 		if (value == NULL)
 			return -ENOENT;
 		
@@ -694,11 +694,12 @@ static int adv_gpio_init(struct pca953x_chip *chip)
 		
 		for (i = 0; i < dir_len; i++) {
 			dir = be32_to_cpu(direction[i]);
+			val = be32_to_cpu(value[i]);
 			gpio_request(chip->gpio_chip.base + i, "PCA-953XGPIO");
 			if(dir == 0){				
 				gpio_direction_input(chip->gpio_chip.base + i);
 			}else{
-				gpio_direction_output(chip->gpio_chip.base + i, value[i]);
+				gpio_direction_output(chip->gpio_chip.base + i, val);
 			}
 			gpio_export(chip->gpio_chip.base + i, 1);
 		}
