@@ -664,10 +664,11 @@ out:
 static int adv_gpio_init(struct pca953x_chip *chip)
 {
 
-	unsigned int dir, dir_len, val_len;
-	int i,val;
+	unsigned int dir,val,exp, dir_len, val_len,exp_len;
+	int i;
 	const __be32 *direction;
 	const __be32 *value;
+	const __be32 *export_flag;
 	struct device_node *np;
 
 	np = of_find_compatible_node(NULL,NULL,"nxp,pca9538");
@@ -686,25 +687,43 @@ static int adv_gpio_init(struct pca953x_chip *chip)
 		value = of_get_property(np, "default_value", &val_len);
 		if (value == NULL)
 			return -ENOENT;
+		export_flag = of_get_property(np, "export_flag", &exp_len);
+		if (value == NULL)
+			return -ENOENT;
 		
 		dir_len = dir_len / sizeof(int);
 		val_len = val_len / sizeof(int);
+		exp_len = exp_len / sizeof(int);
 		if(dir_len != val_len)
+			return -ENOENT;
+		if(exp_len != val_len)
 			return -ENOENT;
 		
 		for (i = 0; i < dir_len; i++) {
+			exp = be32_to_cpu(export_flag[i]);
 			dir = be32_to_cpu(direction[i]);
 			val = be32_to_cpu(value[i]);
+			
 			gpio_request(chip->gpio_chip.base + i, "PCA-953XGPIO");
 			if(dir == 0){				
 				gpio_direction_input(chip->gpio_chip.base + i);
 			}else{
 				gpio_direction_output(chip->gpio_chip.base + i, val);
 			}
-			gpio_export(chip->gpio_chip.base + i, 1);
+			if(exp == 1)
+				gpio_export(chip->gpio_chip.base + i, 1);
 		}
 	}
 	return 0;
+}
+
+struct pca953x_chip *ext_chip;
+int ext_pca953x_gpio_get_value(unsigned off)
+{
+	struct gpio_chip *gc;
+
+	gc = &ext_chip->gpio_chip;
+	return pca953x_gpio_get_value(gc,off);
 }
 #endif
 
@@ -780,6 +799,7 @@ static int pca953x_probe(struct i2c_client *client,
 	
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH		
 	adv_gpio_init(chip);
+	ext_chip = chip;
 #endif
 
 	i2c_set_clientdata(client, chip);

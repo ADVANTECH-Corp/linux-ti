@@ -87,10 +87,6 @@
 						66 1 250
 						112 1 0
 					>;
-		/*adv_lcd_timing=<111 1 10
-						112 1 10
-						66 1 200
-					>;*/
 
 		panel-info {
 			ac-bias           = <255>;
@@ -548,6 +544,7 @@
 		polarity = <0>;
 		default_value = <1 1 1 1 1 1 1 1 >;
 		default_direction = <0 0 0 0 1 1 1 1>;
+		export_flag = <1 1 1 1 1 1 1 1>;
 		status = "okay";
 	};
 };

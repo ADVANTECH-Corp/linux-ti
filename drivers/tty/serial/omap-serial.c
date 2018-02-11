@@ -46,6 +46,9 @@
 #include <linux/platform_data/serial-omap.h>
 
 #include <dt-bindings/gpio/gpio.h>
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH	
+#include <linux/platform_data/pca953x.h>
+#endif
 
 #define OMAP_MAX_HSUART_PORTS	10
 
@@ -723,7 +726,7 @@ static void serial_omap_break_ctl(struct uart_port *port, int break_state)
 static int set_232_485_by_gpio(struct  uart_omap_port *up){
 	if(up->port.line == 1) {
 		unsigned int number,delay,len;
-		int i,val,ret;
+		int i,val,ret,rs485_flag;
 		const __be32 *gpio_number;
 		struct device_node *parent_np;
 		struct device_node *child_np;
@@ -734,11 +737,16 @@ static int set_232_485_by_gpio(struct  uart_omap_port *up){
 			if (gpio_number == NULL)
 				return 0;
 			number = be32_to_cpu(gpio_number[0]);
+
+			if( number < 256 ){
+				gpio_request(number, "RS232_422_485_Sel");
+				gpio_direction_input(number);
+				rs485_flag = gpio_get_value(number);
+			}else{
+				rs485_flag = ext_pca953x_gpio_get_value( (number % 32) -10);
+			}
 			
-			gpio_request(number, "RS232_422_485_Sel");
-			gpio_direction_input(number);
-			
-			if(gpio_get_value(number)) {
+			if(rs485_flag) {
 				volatile unsigned int *port_addr = ioremap(0x44E1097c,0x4);
 				*port_addr = 0x17;   //gpio  output  pullup.
 				printk(KERN_DEBUG "port 1 is 485\n");
