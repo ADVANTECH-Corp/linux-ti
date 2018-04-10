@@ -119,7 +119,7 @@
 
 &am33xx_pinmux {
 	pinctrl-names = "default";
-	pinctrl-0 = <&ddr3_vtt_toggle &rs485flag_gpio>;
+	pinctrl-0 = <&ddr3_vtt_toggle &rs485flag_gpio &wdt_pins_default>;
 
 	ddr3_vtt_toggle: ddr3_vtt_toggle {
 		pinctrl-single,pins = <
@@ -325,6 +325,13 @@
 			0x154 (PIN_INPUT_PULLUP | MUX_MODE0)          /* spi0_d0.spi0_d0 */
 			0x158 (PIN_OUTPUT_PULLUP | MUX_MODE0)         /* spi0_d1.spi0_d1 */
 			0x15c (PIN_OUTPUT_PULLUP | MUX_MODE0)         /* spi0_cs0.spi0_cs0 */
+		>;
+	};
+
+	wdt_pins_default: pinmux_wdt_pins_default {
+		pinctrl-single,pins = <
+			0x88 (PIN_OUTPUT_PULLDOWN | MUX_MODE7)		/* gpmc_csn3.gpio2_0 */
+			0x98 (PIN_OUTPUT_PULLDOWN | MUX_MODE7) 		/* gpmc_wen.gpio2_4 */
 		>;
 	};
 
