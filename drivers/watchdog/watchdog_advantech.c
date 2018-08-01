@@ -1,3 +1,4 @@
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
 /*
  * Advantech Watchdog driver
  */
@@ -15,11 +16,16 @@
 #include <linux/uaccess.h>
 #include <linux/timer.h>
 #include <linux/jiffies.h>
+#include <linux/reboot.h>
 
 #include <linux/i2c.h>
 #include <linux/slab.h>
 #include <linux/delay.h>
 #include <linux/of_gpio.h>
+
+#if 0
+#include <linux/proc-board.h>
+#endif
 
 #define ADV_WDT_WCR		0x00		/* Control Register */
 #define ADV_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
@@ -66,6 +72,7 @@ static struct {
 	unsigned remain_time;
 	unsigned long status;
 	int wdt_ping_status;
+	int wdt_en_off;
 	char version[2];
 } adv_wdt;
 
@@ -145,8 +152,7 @@ static int adv_wdt_i2c_read_reg(struct i2c_client *client, u8 reg, void *buf, si
 int adv_wdt_i2c_set_timeout(struct i2c_client *client, int val)
 {
 	int ret = 0;
-	
-	val = WDOG_SEC_TO_COUNT(val);
+	val = WDOG_SEC_TO_COUNT(val) & 0x0000FFFF;
 	ret = adv_wdt_i2c_write_reg(client, REG_WDT_WATCHDOG_TIME_OUT, &val, sizeof(val));
 	if (ret)
 		return -EIO;
@@ -198,7 +204,7 @@ static void adv_wdt_start(void)
 	if (!test_and_set_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) 
 	{
 		/* at our first start we enable clock and do initialisations */
-		gpio_set_value(gpio_wdt_en, 1);
+		gpio_set_value(gpio_wdt_en, !adv_wdt.wdt_en_off);
 	} 
 
 	/* Watchdog is enabled - time to reload the timeout value */
@@ -211,7 +217,7 @@ static void adv_wdt_stop(void)
 
 	/* we don't need a clk_disable, it cannot be disabled once started.
 	 * We use a timer to ping the watchdog while /dev/watchdog is closed */
-	gpio_set_value(gpio_wdt_en, 0);
+	gpio_set_value(gpio_wdt_en, adv_wdt.wdt_en_off);
 }
 
 static int adv_wdt_open(struct inode *inode, struct file *file)
@@ -329,6 +335,25 @@ static struct miscdevice adv_wdt_miscdev = {
 	.fops = &adv_wdt_fops,
 };
 
+static int adv_wdt_restart_handle(struct notifier_block *this, unsigned long mode,
+			      void *cmd)
+{
+	if (test_and_set_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status))
+		return -EBUSY;
+	adv_wdt_start();
+	adv_wdt.timeout = 10;
+	adv_wdt_i2c_set_timeout(adv_client, adv_wdt.timeout / 10);
+	//wait to show "Rebooting..." messages
+	mdelay(500);
+	adv_wdt_ping();
+	return NOTIFY_DONE;
+}
+
+static struct notifier_block adv_wdt_restart_handler = {
+	.notifier_call = adv_wdt_restart_handle,
+	.priority = 128,
+};
+
 static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
 	int ret;
@@ -353,14 +378,14 @@ static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	gpio_wdt_en = of_get_named_gpio_flags(np, "wdt-en", 0, &flags);
 	if (!gpio_is_valid(gpio_wdt_en))
 		return -ENODEV;	
-
+	adv_wdt.wdt_en_off = flags;
 	ret = devm_gpio_request_one(&client->dev, gpio_wdt_en,
 				GPIOF_OUT_INIT_LOW, "adv_wdt.wdt_en");
 	if (ret < 0) {
 		dev_err(&client->dev, "request gpio failed: %d\n", ret);
 		return ret;
 	}
-	gpio_direction_output(gpio_wdt_en, flags);
+	gpio_direction_output(gpio_wdt_en, adv_wdt.wdt_en_off);
 	
 	gpio_wdt_ping = of_get_named_gpio_flags(np, "wdt-ping", 0, &flags);
 	if (!gpio_is_valid(gpio_wdt_ping))
@@ -377,6 +402,23 @@ static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	msleep(10);
 	gpio_direction_output(gpio_wdt_ping, flags);
 
+#if 0
+	/* We use common gpio pin to be watchdog-out pin (output-low) at present. We wait H/W rework, then remove.  */
+	if (IS_ROM_7421) {
+		gpio_wdt_out = of_get_named_gpio_flags(np, "wdt-out", 0, &flags);
+
+        	if (!gpio_is_valid(gpio_wdt_out))
+                	return -ENODEV;
+
+		ret = devm_gpio_request_one(&client->dev, gpio_wdt_out, GPIOF_OUT_INIT_LOW, "adv_wdt.wdt_out`");
+
+		if (ret < 0) {
+			dev_err(&client->dev, "request gpio failed: %d\n", ret);
+			return ret;
+		}
+
+	}
+#endif
 	adv_wdt.timeout = clamp_t(unsigned, timeout, 1, ADV_WDT_MAX_TIME);
 	if (adv_wdt.timeout != timeout)
 		dev_warn(&client->dev, "Initial timeout out of range! "
@@ -403,6 +445,13 @@ static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_
 	dev_info(&client->dev,
 						"Advantech Watchdog Timer enabled. timeout=%ds (nowayout=%d), Ver.%d\n",
 						adv_wdt.timeout, nowayout, adv_wdt_info.firmware_version);
+	
+	ret = register_restart_handler(&adv_wdt_restart_handler);
+	if (ret) {
+		pr_err("cannot register restart handler (err=%d)\n", ret);
+		goto fail;
+	}
+
 	return 0;
 
 fail:
@@ -413,13 +462,36 @@ fail:
 static int __exit adv_wdt_i2c_remove(struct i2c_client *client)
 {
 	misc_deregister(&adv_wdt_miscdev);
+	unregister_restart_handler(&adv_wdt_restart_handler);
 
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status))
 	{	
-		gpio_set_value(gpio_wdt_en, 0);
+		gpio_set_value(gpio_wdt_en, adv_wdt.wdt_en_off);
 		dev_crit(adv_wdt_miscdev.parent, "Device removed: Expect reboot!\n");
 	}
+	clear_bit(ADV_WDT_EXPECT_CLOSE, &adv_wdt.status);
+	clear_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status);
+	clear_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status);
 	adv_wdt_miscdev.parent = NULL;
+	return 0;
+}
+
+static int adv_wdt_i2c_resume(struct device *dev)
+{
+	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status))
+	{
+		gpio_set_value(gpio_wdt_en, !adv_wdt.wdt_en_off);
+		adv_wdt_i2c_set_timeout(adv_client, adv_wdt.timeout / 10);
+		adv_wdt_ping();
+	}
+	return 0;
+}
+
+static int adv_wdt_i2c_suspend(struct device *dev)
+{
+	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) {
+		adv_wdt_stop();
+	}
 	return 0;
 }
 
@@ -428,13 +500,16 @@ static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) {
 		/* we are running, we need to delete the timer but will give
 		 * max timeout before reboot will take place */
-		gpio_set_value(gpio_wdt_en, 0);		
-		adv_wdt_i2c_set_timeout(client, ADV_WDT_MAX_TIME);
+		gpio_set_value(gpio_wdt_en, adv_wdt.wdt_en_off);
+		adv_wdt_i2c_set_timeout(client, ADV_WDT_MAX_TIME / 10);
 		adv_wdt_ping();
 
 		dev_crit(adv_wdt_miscdev.parent,
 			"Device shutdown: Expect reboot!\n");
 	}
+	clear_bit(ADV_WDT_EXPECT_CLOSE, &adv_wdt.status);
+	clear_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status);
+	clear_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status);
 }
 
 static const struct i2c_device_id adv_wdt_i2c_id[] = {
@@ -450,11 +525,17 @@ static const struct of_device_id adv_wdt_i2c_dt_ids[] = {
 };
 MODULE_DEVICE_TABLE(of, adv_wdt_i2c_dt_ids);
 
+static const struct dev_pm_ops adv_wdt_device_pm_ops = {
+	.resume = adv_wdt_i2c_resume,
+	.suspend = adv_wdt_i2c_suspend,
+};
+
 static struct i2c_driver adv_wdt_i2c_driver = {
 	.driver = {
 		   .name = DRIVER_NAME,
 		   .owner = THIS_MODULE,
 		   .of_match_table = adv_wdt_i2c_dt_ids,
+		   .pm = &adv_wdt_device_pm_ops,
 		   },
 	.probe = adv_wdt_i2c_probe,
 	.remove = adv_wdt_i2c_remove,
@@ -477,3 +558,5 @@ module_exit(adv_wdt_i2c_exit);
 
 MODULE_DESCRIPTION("Advantech Watchdog I2C Driver");
 MODULE_LICENSE("GPL");
+
+#endif
