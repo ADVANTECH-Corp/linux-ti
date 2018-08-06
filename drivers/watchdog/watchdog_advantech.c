@@ -1,4 +1,4 @@
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
 /*
  * Advantech Watchdog driver
  */
