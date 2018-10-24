@@ -1972,9 +1972,14 @@ static const struct usb_device_id option_ids[] = {
 #if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
 	{ USB_DEVICE(0x05C6, 0x9090)},/* Quectel UC15*/
         { USB_DEVICE(0x05C6, 0x9003)},/* Quectel UC20*/
-        { USB_DEVICE(0x05C6, 0x9215)},/* Quectel EC20*/
-        { USB_DEVICE(0x2C7C, 0x0125)},/* Quectel EC25/EC20 R2.0*/
+        { USB_DEVICE(0x2C7C, 0x0125)},/* Quectel EC25*/
         { USB_DEVICE(0x2C7C, 0x0121)},/* Quectel EC21*/
+        { USB_DEVICE(0x05C6, 0x9215)},/* Quectel EC20*/
+        { USB_DEVICE(0x2C7C, 0x0191)},/* Quectel EG91*/
+        { USB_DEVICE(0x2C7C, 0x0195)},/* Quectel EG95*/
+        { USB_DEVICE(0x2C7C, 0x0306)},/* Quectel EG06/EP06/EM06*/
+        { USB_DEVICE(0x2C7C, 0x0296)},/* Quectel BG96*/
+        { USB_DEVICE(0x2C7C, 0x0435)},/* Quectel AG35*/
         { USB_DEVICE(0x2020, 0x2033)},/* BroadMobi BM806 */
         { USB_DEVICE(0x2020, 0x2040)},/* BroadMobi BM817 */
 #endif

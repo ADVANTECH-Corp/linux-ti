@@ -505,7 +505,7 @@ static struct urb *usb_wwan_setup_urb(struct usb_serial_port *port,
 			  usb_sndbulkpipe(serial->dev, endpoint) | dir,
 			  buf, len, callback, ctx);
 
-#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
+#if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
 	if(dir == USB_DIR_OUT){
 	struct usb_device_descriptor *desc = &serial->dev->descriptor;
 	if(desc->idVendor == cpu_to_le16(0x05C6) && desc->idProduct == cpu_to_le16(0x9090))
