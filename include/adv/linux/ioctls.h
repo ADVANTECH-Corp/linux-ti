@@ -18,6 +18,11 @@
 #define BDAQ_CNTR_MAGIC 'e'
 #define BDAQ_KLIB_MAGIC 'k'
 
+// To compatible with 32bit and 64bit OS at same time,
+// pointer(handle) type field of a structure should be declared like this:
+// Compatible(<type>, <name>)
+#define DECL_64COMPAT(type, name)      union { type name; int64 _pad##name; }
+
 //******************************************************************************************
 //                                                                                         *
 // IOCTL for klib operation                                                                *
@@ -254,7 +259,7 @@ typedef struct _AI_READ_CJC_SAMPLES{
 #define AO_SET_CHVRG      0x1
 #define AO_SET_EXTREFUNI  0x2
 #define AO_SET_EXTREFBI   0x4
-#define AO_SET_ALL        -1
+#define AO_SET_ALL        (uint32)-1
 typedef struct _AO_SET_CHAN{
    uint32  SetWhich;
    double  ExtRefUnipolar;        // unipolar external reference value

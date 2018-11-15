@@ -12,7 +12,7 @@
 #include <linux/types.h>
 #include <linux/spinlock.h>
 #include <linux/slab.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 #include <adv/bdaqdef.h>
 #include <adv/linux/ioctls.h>

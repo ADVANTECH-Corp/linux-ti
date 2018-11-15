@@ -23,7 +23,7 @@ int daq_ioctl_di_read_port(daq_device_t *daq_dev, unsigned long arg)
    }
 
    xbuf.PortStart %= DIO_PORT_COUNT;
-   xbuf.PortCount  = min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
+   xbuf.PortCount  = x_min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
    if (daq_usb_di_read_port(daq_dev, data) < 0){
       return -EIO;
    }
@@ -46,7 +46,7 @@ int daq_ioctl_do_write_port(daq_device_t *daq_dev, unsigned long arg)
    }
 
    xbuf.PortStart %= DIO_PORT_COUNT;
-   xbuf.PortCount  = min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
+   xbuf.PortCount  = x_min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
    if (unlikely(copy_from_user(data, (void *)xbuf.Data, xbuf.PortCount))) {
       return -EFAULT;
    }
@@ -105,7 +105,7 @@ int daq_ioctl_do_read_port(daq_device_t *daq_dev, unsigned long arg)
    }
 
    xbuf.PortStart %= DIO_PORT_COUNT;
-   xbuf.PortCount  = min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
+   xbuf.PortCount  = x_min((unsigned)DIO_PORT_COUNT, xbuf.PortCount);
    if (daq_usb_do_read_port(daq_dev, data) < 0){
       return -EIO;
    }

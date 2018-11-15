@@ -58,16 +58,23 @@ typedef enum tagTerminalBoard {
    PCLD8710,
    PCLD789,
    PCLD8115,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+    BoardUnknown = 0xffffffff,
 } TerminalBoard;
 
 typedef enum tagModuleType {
-   DaqAny   = -1,
    DaqGroup = 1,
    DaqDevice,
    DaqAi,
    DaqAo,
    DaqDio,
    DaqCounter,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   DaqAny = 0xffffffff,
 } ModuleType;
 
 typedef enum tagAccessMode {
@@ -75,7 +82,10 @@ typedef enum tagAccessMode {
    ModeWrite,
    ModeWriteWithReset,
    ModeWriteShared,
-   ModeReserved = 0xffffffff,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ModeUnknown = 0xffffffff,
 } AccessMode;
 
 typedef enum Depository {
@@ -90,30 +100,34 @@ typedef enum Depository {
 
 typedef enum tagMathIntervalType {
    /* Right boundary definition, define the maximum value state, use the bit 0,1 */
-   RightOpenSet        = 0x0, /* No maximum value limitation.  */
-   RightClosedBoundary = 0x1,	/* The maximum value is included. */
-   RightOpenBoundary   = 0x2, /* The maximum value is not included. */
+   RightOpenSet        = 0x0,   /* No maximum value limitation.  */
+   RightClosedBoundary = 0x1,   /* The maximum value is included. */
+   RightOpenBoundary   = 0x2,   /* The maximum value is not included. */
 
    /* Left boundary definition, define the minimum value state, used the bit 2, 3 */
-   LeftOpenSet        = 0x0,	/* No minimum value limitation. */
-   LeftClosedBoundary = 0x4, 	/* The minimum value is included. */
-   LeftOpenBoundary   = 0x8,	/* The minimum value is not included */
+   LeftOpenSet        = 0x0,   /* No minimum value limitation. */
+   LeftClosedBoundary = 0x4,   /* The minimum value is included. */
+   LeftOpenBoundary   = 0x8,   /* The minimum value is not included */
 
    /* The signality expression */
-   Boundless          = 0x0,  /* Boundless set. (LeftOpenSet | RightOpenSet) */
+   Boundless          = 0x0,   /* Boundless set. (LeftOpenSet | RightOpenSet) */
 
    /* The combination notation */
-   LOSROS = 0x0,	 /* (LeftOpenSet | RightOpenSet), algebra notation: (un-limit, max) */
-   LOSRCB = 0x1,	 /* (LeftOpenSet | RightClosedBoundary), algebra notation: (un-limit, max ] */
-   LOSROB = 0x2,	 /* (LeftOpenSet | RightOpenBoundary), algebra notation: (un-limit, max) */
+   LOSROS = 0x0,    /* (LeftOpenSet | RightOpenSet), algebra notation: (un-limit, max) */
+   LOSRCB = 0x1,    /* (LeftOpenSet | RightClosedBoundary), algebra notation: (un-limit, max ] */
+   LOSROB = 0x2,    /* (LeftOpenSet | RightOpenBoundary), algebra notation: (un-limit, max) */
 
-   LCBROS = 0x4,	 /* (LeftClosedBoundary | RightOpenSet), algebra notation: [min, un-limit) */
-   LCBRCB = 0x5,	 /* (LeftClosedBoundary | RightClosedBoundary), algebra notation: [ min, right ] */
-   LCBROB = 0x6,	 /* (LeftClosedBoundary | RightOpenBoundary), algebra notation: [ min, right) */
+   LCBROS = 0x4,    /* (LeftClosedBoundary | RightOpenSet), algebra notation: [min, un-limit) */
+   LCBRCB = 0x5,    /* (LeftClosedBoundary | RightClosedBoundary), algebra notation: [ min, right ] */
+   LCBROB = 0x6,    /* (LeftClosedBoundary | RightOpenBoundary), algebra notation: [ min, right) */
 
-   LOBROS = 0x8,	 /* (LeftOpenBoundary | RightOpenSet), algebra notation: (min, un-limit) */
-   LOBRCB = 0x9,	 /* (LeftOpenBoundary | RightClosedBoundary), algebra notation: (min, right ] */
-   LOBROB = 0xA,	 /* (LeftOpenBoundary | RightOpenBoundary), algebra notation: (min, right) */
+   LOBROS = 0x8,    /* (LeftOpenBoundary | RightOpenSet), algebra notation: (min, un-limit) */
+   LOBRCB = 0x9,    /* (LeftOpenBoundary | RightClosedBoundary), algebra notation: (min, right ] */
+   LOBROB = 0xA,    /* (LeftOpenBoundary | RightOpenBoundary), algebra notation: (min, right) */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   IntervalUnknown = 0xffffffff,
 } MathIntervalType;
 
 typedef struct tagMathInterval {
@@ -127,16 +141,20 @@ typedef enum tagAiChannelType {
    AllDifferential,
    AllSeDiffAdj,
    MixedSeDiffAdj,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ChannelUnknown = 0xffffffff,
 } AiChannelType;
 
 typedef enum AiSignalType {
-	SingleEnded = 0,
-	Differential,
-	PseudoDifferential,
+   SingleEnded = 0,
+   Differential,
+   PseudoDifferential,
 
-	/*----------------------------------------------------------------------*/
-	/*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
-	AiSignalUnknown = 0xffffffff,
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   AiSignalUnknown = 0xffffffff,
 } AiSignalType;
 
 typedef enum tagFilterType {
@@ -145,22 +163,38 @@ typedef enum tagFilterType {
    HighPass,
    BandPass,
    BandStop,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   FilterUnknown = 0xffffffff,
 } FilterType;
 
 typedef enum tagCouplingType {
    DCCoupling = 0,
    ACCoupling,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   CouplingUnknown = 0xffffffff,
 } CouplingType;
 
 typedef enum tagImpedanceType  {
    Ipd1Momh = 0,
    Ipd50omh,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ImpedanceUnknown = 0xffffffff,
 } ImpedanceType;
 
 typedef enum tagIepeType  {
    IEPENone = 0,
    IEPE4mA = 1,
    IEPE10mA = 2,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   IepeUnknown = 0xffffffff,
 } IepeType;
 
 typedef enum tagDioPortType {
@@ -170,6 +204,10 @@ typedef enum tagDioPortType {
    Port8255A,         // the port number references to a PPI port A mode DIO port.
    Port8255C,         // the port number references to a PPI port C mode DIO port.
    PortIndvdlDio,     // the port number references to a port whose each channel can be configured as in or out.
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   PortUnknown = 0xffffffff,
 } DioPortType;
 
 typedef enum tagDioPortDir {
@@ -177,16 +215,28 @@ typedef enum tagDioPortDir {
    LoutHin = 0x0F,
    LinHout = 0xF0,
    Output  = 0xFF,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   DirUnknown = 0xffffffff,
 } DioPortDir;
 
 typedef enum tagDiOpenState {
    pullHighAllPort = 0x00,
    pullLowAllPort = 0x11,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   OpenStateUnknown = 0xffffffff,
 } DiOpenState;
 
 typedef enum tagSamplingMethod {
    EqualTimeSwitch = 0,
    Simultaneous,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   SamplingUnknown = 0xffffffff,
 } SamplingMethod;
 
 typedef enum tagTemperatureDegree {
@@ -194,6 +244,10 @@ typedef enum tagTemperatureDegree {
    Fahrenheit,
    Rankine,
    Kelvin,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   DegreeUnknown = 0xffffffff,
 } TemperatureDegree;
 
 typedef enum tagBurnoutRetType {
@@ -202,6 +256,10 @@ typedef enum tagBurnoutRetType {
    UpLimit,
    LowLimit,
    LastCorrectValue,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ReturnUnknown = 0xffffffff,
 } BurnoutRetType;
 
 typedef enum tagValueUnit {
@@ -214,10 +272,13 @@ typedef enum tagValueUnit {
    Milliampere,   /* mA */
    Microampere,   /* uA */
    CelsiusUnit,   /* Celsius */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   UnitUnknown = 0xffffffff,
 } ValueUnit;
 
 typedef enum tagValueRange {
-   V_OMIT = -1,            /* Unknown when get, ignored when set */
    V_Neg15To15 = 0,        /* +/- 15 V  */
    V_Neg10To10,            /* +/- 10 V  */
    V_Neg5To5,              /* +/- 5 V */
@@ -265,21 +326,21 @@ typedef enum tagValueRange {
    V_Neg20To20,            /* +/- 20 V */
 
    Jtype_0To760C = 0x8000, /* T/C J type 0~760 'C */
-   Ktype_0To1370C,		   /* T/C K type 0~1370 'C */
+   Ktype_0To1370C,         /* T/C K type 0~1370 'C */
    Ttype_Neg100To400C,     /* T/C T type -100~400 'C */
-   Etype_0To1000C,		   /* T/C E type 0~1000 'C */
-   Rtype_500To1750C,	      /* T/C R type 500~1750 'C */
-   Stype_500To1750C,	      /* T/C S type 500~1750 'C */
-   Btype_500To1800C,	      /* T/C B type 500~1800 'C */
+   Etype_0To1000C,         /* T/C E type 0~1000 'C */
+   Rtype_500To1750C,       /* T/C R type 500~1750 'C */
+   Stype_500To1750C,       /* T/C S type 500~1750 'C */
+   Btype_500To1800C,       /* T/C B type 500~1800 'C */
 
-   Pt392_Neg50To150,	      /* Pt392 -50~150 'C  */
-   Pt385_Neg200To200,	   /* Pt385 -200~200 'C */
-   Pt385_0To400,		      /* Pt385 0~400 'C */
-   Pt385_Neg50To150,	      /* Pt385 -50~150 'C */
+   Pt392_Neg50To150,       /* Pt392 -50~150 'C  */
+   Pt385_Neg200To200,      /* Pt385 -200~200 'C */
+   Pt385_0To400,           /* Pt385 0~400 'C */
+   Pt385_Neg50To150,       /* Pt385 -50~150 'C */
    Pt385_Neg100To100,      /* Pt385 -100~100 'C */
-   Pt385_0To100,		      /* Pt385 0~100 'C  */
-   Pt385_0To200,		      /* Pt385 0~200 'C */
-   Pt385_0To600,		      /* Pt385 0~600 'C */
+   Pt385_0To100,           /* Pt385 0~100 'C  */
+   Pt385_0To200,           /* Pt385 0~200 'C */
+   Pt385_0To600,           /* Pt385 0~600 'C */
    Pt392_Neg100To100,      /* Pt392 -100~100 'C  */
    Pt392_0To100,           /* Pt392 0~100 'C */
    Pt392_0To200,           /* Pt392 0~200 'C */
@@ -301,14 +362,14 @@ typedef enum tagValueRange {
    Jtype_Neg210To1200C,    /* T/C J type -210~1200 'C */
    Ktype_Neg270To1372C,    /* T/C K type -270~1372 'C */
    Ttype_Neg270To400C,     /* T/C T type -270~400 'C */
-   Etype_Neg270To1000C,		/* T/C E type -270~1000 'C */
-   Rtype_Neg50To1768C,	   /* T/C R type -50~1768 'C */
-   Stype_Neg50To1768C,	   /* T/C S type -50~1768 'C */
-   Btype_40To1820C,	      /* T/C B type 40~1820 'C */
+   Etype_Neg270To1000C,    /* T/C E type -270~1000 'C */
+   Rtype_Neg50To1768C,     /* T/C R type -50~1768 'C */
+   Stype_Neg50To1768C,     /* T/C S type -50~1768 'C */
+   Btype_40To1820C,        /* T/C B type 40~1820 'C */
 
    Jtype_Neg210To870C,     /* T/C J type -210~870 'C */
-   Rtype_0To1768C,	      /* T/C R type 0~1768 'C */
-   Stype_0To1768C,	      /* T/C S type 0~1768 'C */
+   Rtype_0To1768C,         /* T/C R type 0~1768 'C */
+   Stype_0To1768C,         /* T/C S type 0~1768 'C */
    Ttype_Neg20To135C,      /* T/C T type -20~135 'C */
 
    /* 0xC000 ~ 0xF000 : user customized value range type */
@@ -316,13 +377,21 @@ typedef enum tagValueRange {
    UserCustomizedVrgEnd = 0xF000,
 
    /* AO external reference type */
-   V_ExternalRefBipolar = 0xF001, /* External reference voltage unipolar */
+   V_ExternalRefBipolar = 0xF001,  /* External reference voltage unipolar */
    V_ExternalRefUnipolar = 0xF002, /* External reference voltage bipolar */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   V_OMIT = 0xffffffff,            /* Unknown when get, ignored when set */
 } ValueRange;
 
 typedef enum tagSignalPolarity {
    Negative = 0,
    Positive,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   PolarityUnknown = 0xffffffff,
 } SignalPolarity;
 
 typedef enum tagSignalCountingType {
@@ -334,7 +403,14 @@ typedef enum tagSignalCountingType {
    AbPhaseX1,      /* AB phase, 1x rate up/down counting */
    AbPhaseX2,      /* AB phase, 2x rate up/down counting */
    AbPhaseX4,      /* AB phase, 4x rate up/down counting */
-} SignalCountingType;
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   CountingUnknown = 0xffffffff,
+} CountingType;
+
+/*for compatible*/ 
+typedef CountingType SignalCountingType; 
 
 typedef enum tagOutSignalType{
    SignalOutNone = 0,  /* no output or output is 'disabled' */
@@ -344,6 +420,10 @@ typedef enum tagOutSignalType{
    NegativePulse,      /* a high-to-low pulse */
    ToggledFromLow,     /* the level toggled from low to high */
    ToggledFromHigh,    /* the level toggled from high to low */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   OutSignalUnknown = 0xffffffff,
 } OutSignalType;
 
 typedef enum tagCounterCapability {
@@ -355,6 +435,10 @@ typedef enum tagCounterCapability {
    InstantPwmIn,
    InstantPwmOut,
    UpDownCount,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   CapabilityUnknown = 0xffffffff,
 } CounterCapability;
 
 typedef enum tagCounterOperationMode {
@@ -365,22 +449,26 @@ typedef enum tagCounterOperationMode {
    C8254_M4,     /*8254 mode 4, software triggered strobe */
    C8254_M5,     /*8254 mode 5, hardware triggered strobe */
 
-   C1780_MA,	/* Mode A level & pulse out, Software-Triggered without Hardware Gating */
-   C1780_MB,	/* Mode B level & pulse out, Software-Triggered with Level Gating, = 8254_M0 */
-   C1780_MC,	/* Mode C level & pulse out, Hardware-triggered strobe level */
-   C1780_MD,	/* Mode D level & Pulse out, Rate generate with no hardware gating */
-   C1780_ME,	/* Mode E level & pulse out, Rate generator with level Gating */
-   C1780_MF,	/* Mode F level & pulse out, Non-retriggerable One-shot (Pulse type = 8254_M1) */
-   C1780_MG,	/* Mode G level & pulse out, Software-triggered delayed pulse one-shot */
-   C1780_MH,	/* Mode H level & pulse out, Software-triggered delayed pulse one-shot with hardware gating */
-   C1780_MI,	/* Mode I level & pulse out, Hardware-triggered delay pulse strobe */
-   C1780_MJ,	/* Mode J level & pulse out, Variable Duty Cycle Rate Generator with No Hardware Gating */
-   C1780_MK,	/* Mode K level & pulse out, Variable Duty Cycle Rate Generator with Level Gating */
-   C1780_ML,	/* Mode L level & pulse out, Hardware-Triggered Delayed Pulse One-Shot */
-   C1780_MO,	/* Mode O level & pulse out, Hardware-Triggered Strobe with Edge Disarm */
-   C1780_MR,	/* Mode R level & pulse out, Non-Retriggerbale One-Shot with Edge Disarm */
-   C1780_MU,	/* Mode U level & pulse out, Hardware-Triggered Delayed Pulse Strobe with Edge Disarm */
-   C1780_MX,	/* Mode X level & pulse out, Hardware-Triggered Delayed Pulse One-Shot with Edge Disarm */
+   C1780_MA,    /* Mode A level & pulse out, Software-Triggered without Hardware Gating */
+   C1780_MB,    /* Mode B level & pulse out, Software-Triggered with Level Gating, = 8254_M0 */
+   C1780_MC,    /* Mode C level & pulse out, Hardware-triggered strobe level */
+   C1780_MD,    /* Mode D level & Pulse out, Rate generate with no hardware gating */
+   C1780_ME,    /* Mode E level & pulse out, Rate generator with level Gating */
+   C1780_MF,    /* Mode F level & pulse out, Non-retriggerable One-shot (Pulse type = 8254_M1) */
+   C1780_MG,    /* Mode G level & pulse out, Software-triggered delayed pulse one-shot */
+   C1780_MH,    /* Mode H level & pulse out, Software-triggered delayed pulse one-shot with hardware gating */
+   C1780_MI,    /* Mode I level & pulse out, Hardware-triggered delay pulse strobe */
+   C1780_MJ,    /* Mode J level & pulse out, Variable Duty Cycle Rate Generator with No Hardware Gating */
+   C1780_MK,    /* Mode K level & pulse out, Variable Duty Cycle Rate Generator with Level Gating */
+   C1780_ML,    /* Mode L level & pulse out, Hardware-Triggered Delayed Pulse One-Shot */
+   C1780_MO,    /* Mode O level & pulse out, Hardware-Triggered Strobe with Edge Disarm */
+   C1780_MR,    /* Mode R level & pulse out, Non-Retriggerbale One-Shot with Edge Disarm */
+   C1780_MU,    /* Mode U level & pulse out, Hardware-Triggered Delayed Pulse Strobe with Edge Disarm */
+   C1780_MX,    /* Mode X level & pulse out, Hardware-Triggered Delayed Pulse One-Shot with Edge Disarm */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   OpModeUnknown = 0xffffffff,
 } CounterOperationMode;
 
 typedef enum tagCounterValueRegister {
@@ -389,21 +477,33 @@ typedef enum tagCounterValueRegister {
    CntHold,
    CntOverCompare,
    CntUnderCompare,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+  RegisterUnknown = 0xffffffff,
 } CounterValueRegister;
 
 typedef enum tagCounterCascadeGroup {
    GroupNone = 0,    /* no cascade*/
-   Cnt0Cnt1,	      /* Counter 0 as first, counter 1 as second. */
-   Cnt2Cnt3,	      /* Counter 2 as first, counter 3 as second */
-   Cnt4Cnt5,	      /* Counter 4 as first, counter 5 as second */
-   Cnt6Cnt7,	      /* Counter 6 as first, counter 7 as second */
+   Cnt0Cnt1,         /* Counter 0 as first, counter 1 as second. */
+   Cnt2Cnt3,         /* Counter 2 as first, counter 3 as second */
+   Cnt4Cnt5,         /* Counter 4 as first, counter 5 as second */
+   Cnt6Cnt7,         /* Counter 6 as first, counter 7 as second */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   CascadeUnknown = 0xffffffff,
 } CounterCascadeGroup;
 
 typedef enum tagFreqMeasureMethod {
-   AutoAdaptive = 0, 		   /* Intelligently select the measurement method according to the input signal. */
-   CountingPulseBySysTime, 	/* Using system timing clock to calculate the frequency */
-   CountingPulseByDevTime,	   /* Using the device timing clock to calculate the frequency */
-   PeriodInverse,			      /* Calculate the frequency from the period of the signal */
+   AutoAdaptive = 0,          /* Intelligently select the measurement method according to the input signal. */
+   CountingPulseBySysTime,    /* Using system timing clock to calculate the frequency */
+   CountingPulseByDevTime,    /* Using the device timing clock to calculate the frequency */
+   PeriodInverse,             /* Calculate the frequency from the period of the signal */
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   MethodUnknown = 0xffffffff,
 } FreqMeasureMethod;
 
 typedef enum tagActiveSignal {
@@ -413,6 +513,10 @@ typedef enum tagActiveSignal {
    BothEdge,
    HighLevel,
    LowLevel,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ActSignalUnknown = 0xffffffff,
 } ActiveSignal;
 
 typedef enum tagTriggerAction {
@@ -420,16 +524,24 @@ typedef enum tagTriggerAction {
    DelayToStart,     /* Begin to start after the specified time is elapsed if the trigger condition is satisfied */
    DelayToStop,      /* Stop execution after the specified time is elapsed if the trigger condition is satisfied */
    Mark,             /* Generate a mark data*/
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   ActionUnknown = 0xffffffff,
 } TriggerAction;
 
 typedef enum tagSignalPosition {
    InternalSig = 0,
    OnConnector,
    OnAmsi,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   PositionUnknown = 0xffffffff,
 } SignalPosition;
 
 typedef enum tagSignalDrop {
-   SignalNone = 0,      /* No connection */
+   SignalNone = 0,          /* No connection */
 
    /*Internal signal connector*/
    SigInternalClock,        /* Device built-in clock, If the device has several built-in clock, this represent the highest freq one. */
@@ -571,53 +683,17 @@ typedef enum tagSignalDrop {
    SigInternal2MHz,        /* Device built-in clock, 2MHz */
    
    /*New Function pin on connector*/
-   SigExtAnaTrigger1,       /* external analog trigger pin of connector 1 */
+   SigExtAnaTrigger1,      /* external analog trigger pin of connector 1 */
 
    /*Reference clock*/
-   SigExtDigRefClock,          /* digital clock pin of connector */
+   SigExtDigRefClock,      /* digital clock pin of connector */
 
    /*New Function pin on connector*/
    SigInternal100MHz,
-   SigSwTrig0,
-   SigSwTrig1,
-   SigSwTrig2,
-   SigSwTrig3,
-   SigSwTrig4,
-   SigSwTrig5,
-   SigSwTrig6,
-   SigSwTrig7,
-   SigInternalAISampleClock,
-   SigInternalAIConversionClock,
-   SigInternalAOSampleClock,       /* Device built-in clock, AO Sample Clock */
-   SigInternalDISampleClock,       /* Device built-in clock, AO Sample Clock */
-   SigInternalDOSampleClock,       /* Device built-in clock, AO Sample Clock */
-   SigProgrammableFunctPin0,
-   SigProgrammableFunctPin1,
-   SigProgrammableFunctPin2,
-   SigProgrammableFunctPin3,
-   SigProgrammableFunctPin4,
-   SigProgrammableFunctPin5,
-   SigProgrammableFunctPin6,
-   SigProgrammableFunctPin7,
-   SigProgrammableFunctPin8,
-   SigProgrammableFunctPin9,
-   SigProgrammableFunctPin10,
-   SigProgrammableFunctPin11,
-   SigProgrammableFunctPin12,
-   SigProgrammableFunctPin13,
-   SigProgrammableFunctPin14,
-   SigProgrammableFunctPin15,
-   SigProgrammableFunctPin16,
-   SigProgrammableFunctPin17,
-   SigProgrammableFunctPin18,
-   SigProgrammableFunctPin19,
-   SigProgrammableFunctPin20,
-   SigProgrammableFunctPin21,
-   SigProgrammableFunctPin22,
-   SigProgrammableFunctPin23,
-   SigProgrammableFunctPin24,
-   SigProgrammableFunctPin25,
 
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   SigDropUnknown = 0xffffffff,
 } SignalDrop;
 
 /*
@@ -785,6 +861,11 @@ typedef enum tagEventId {
    EvtBufferedAiTimeStampOverrun,
    EvtBufferedAiTimeStampCacheOverflow,
    EvtBufferedAiMarkOverrun,
+   EvtBufferedAiConvStopped,
+
+   /*----------------------------------------------------------------------*/
+   /*Dummy ID, to ensure the type is compiled as 'int' by various compiler */
+   EventUnknown = 0xffffffff,
 } EventId ;
 
 /*
@@ -1544,107 +1625,107 @@ typedef enum tagErrorCode {
 
 // Advantech CardType ID 
 typedef enum tagProductId {
-   BD_DEMO   = 0x00,		// demo board
-   BD_PCL818 = 0x05,		// PCL-818 board
-   BD_PCL818H = 0x11,	// PCL-818H
-   BD_PCL818L = 0x21,	// PCL-818L
-   BD_PCL818HG = 0x22,	// PCL-818HG
-   BD_PCL818HD = 0x2b,	// PCL-818HD
-   BD_PCM3718 = 0x37,	// PCM-3718
-   BD_PCM3724 = 0x38,	// PCM-3724
-   BD_PCM3730 = 0x5a,	// PCM-3730
-   BD_PCI1750 = 0x5e,	// PCI-1750
-   BD_PCI1751 = 0x5f,	// PCI-1751
-   BD_PCI1710 = 0x60,	// PCI-1710
-   BD_PCI1712 = 0x61,	// PCI-1712
-   BD_PCI1710HG = 0x67,	// PCI-1710HG
-   BD_PCI1711 = 0x73,	// PCI-1711
-   BD_PCI1711L = 0x75,	// PCI-1711L 
-   BD_PCI1713 = 0x68,	// PCI-1713
-   BD_PCI1753 = 0x69,	// PCI-1753
-   BD_PCI1760 = 0x6a,	// PCI-1760
-   BD_PCI1720 = 0x6b,	// PCI-1720
-   BD_PCM3718H = 0x6d,	// PCM-3718H
-   BD_PCM3718HG = 0x6e,	// PCM-3718HG
-   BD_PCI1716 = 0x74,	// PCI-1716
-   BD_PCI1731 = 0x75,	// PCI-1731
-   BD_PCI1754 = 0x7b,	// PCI-1754
-   BD_PCI1752 = 0x7c,	// PCI-1752
-   BD_PCI1756 = 0x7d,	// PCI-1756
-   BD_PCM3725 = 0x7f,	// PCM-3725
-   BD_PCI1762 = 0x80,	// PCI-1762
-   BD_PCI1721 = 0x81,	// PCI-1721
-   BD_PCI1761 = 0x82,	// PCI-1761
-   BD_PCI1723 = 0x83,	// PCI-1723
-   BD_PCI1730 = 0x87,	// PCI-1730
-   BD_PCI1733 = 0x88,	// PCI-1733
-   BD_PCI1734 = 0x89,	// PCI-1734
-   BD_PCI1710L = 0x90,	// PCI-1710L
+   BD_DEMO   = 0x00,      // demo board
+   BD_PCL818 = 0x05,      // PCL-818 board
+   BD_PCL818H = 0x11,   // PCL-818H
+   BD_PCL818L = 0x21,   // PCL-818L
+   BD_PCL818HG = 0x22,   // PCL-818HG
+   BD_PCL818HD = 0x2b,   // PCL-818HD
+   BD_PCM3718 = 0x37,   // PCM-3718
+   BD_PCM3724 = 0x38,   // PCM-3724
+   BD_PCM3730 = 0x5a,   // PCM-3730
+   BD_PCI1750 = 0x5e,   // PCI-1750
+   BD_PCI1751 = 0x5f,   // PCI-1751
+   BD_PCI1710 = 0x60,   // PCI-1710
+   BD_PCI1712 = 0x61,   // PCI-1712
+   BD_PCI1710HG = 0x67,   // PCI-1710HG
+   BD_PCI1711 = 0x73,   // PCI-1711
+   BD_PCI1711L = 0x75,   // PCI-1711L 
+   BD_PCI1713 = 0x68,   // PCI-1713
+   BD_PCI1753 = 0x69,   // PCI-1753
+   BD_PCI1760 = 0x6a,   // PCI-1760
+   BD_PCI1720 = 0x6b,   // PCI-1720
+   BD_PCM3718H = 0x6d,   // PCM-3718H
+   BD_PCM3718HG = 0x6e,   // PCM-3718HG
+   BD_PCI1716 = 0x74,   // PCI-1716
+   BD_PCI1731 = 0x75,   // PCI-1731
+   BD_PCI1754 = 0x7b,   // PCI-1754
+   BD_PCI1752 = 0x7c,   // PCI-1752
+   BD_PCI1756 = 0x7d,   // PCI-1756
+   BD_PCM3725 = 0x7f,   // PCM-3725
+   BD_PCI1762 = 0x80,   // PCI-1762
+   BD_PCI1721 = 0x81,   // PCI-1721
+   BD_PCI1761 = 0x82,   // PCI-1761
+   BD_PCI1723 = 0x83,   // PCI-1723
+   BD_PCI1730 = 0x87,   // PCI-1730
+   BD_PCI1733 = 0x88,   // PCI-1733
+   BD_PCI1734 = 0x89,   // PCI-1734
+   BD_PCI1710L = 0x90,   // PCI-1710L
    BD_PCI1710HGL = 0x91,// PCI-1710HGL
-   BD_PCM3712 = 0x93,	// PCM-3712
-   BD_PCM3723 = 0x94,	// PCM-3723
-   BD_PCI1780 = 0x95,	// PCI-1780
-   BD_MIC3756 = 0x96,	// MIC-3756
-   BD_PCI1755 = 0x97,	// PCI-1755
-   BD_PCI1714 = 0x98,	// PCI-1714
-   BD_PCI1757 = 0x99,	// PCI-1757
-   BD_MIC3716 = 0x9A,	// MIC-3716
-   BD_MIC3761 = 0x9B,	// MIC-3761
-   BD_MIC3753 = 0x9C,		// MIC-3753
-   BD_MIC3780 = 0x9D,		// MIC-3780
-   BD_PCI1724 = 0x9E,		// PCI-1724
-   BD_PCI1758UDI = 0xA3,	// PCI-1758UDI
-   BD_PCI1758UDO = 0xA4,	// PCI-1758UDO
-   BD_PCI1747 = 0xA5,		// PCI-1747
-   BD_PCM3780 = 0xA6,		// PCM-3780 
-   BD_MIC3747 = 0xA7,		// MIC-3747
-   BD_PCI1758UDIO = 0xA8,	// PCI-1758UDIO
-   BD_PCI1712L = 0xA9,		// PCI-1712L
-   BD_PCI1763UP = 0xAC,	   // PCI-1763UP
-   BD_PCI1736UP = 0xAD,	   // PCI-1736UP
-   BD_PCI1714UL = 0xAE,	   // PCI-1714UL
-   BD_MIC3714 = 0xAF,		// MIC-3714
-   BD_PCM3718HO = 0xB1,	   // PCM-3718HO
-   BD_PCI1741U = 0xB3,		// PCI-1741U
-   BD_MIC3723 = 0xB4,		// MIC-3723 
-   BD_PCI1718HDU = 0xB5,	// PCI-1718HDU
-   BD_MIC3758DIO = 0xB6,	// MIC-3758DIO
-   BD_PCI1727U = 0xB7,		// PCI-1727U
-   BD_PCI1718HGU = 0xB8,	// PCI-1718HGU
-   BD_PCI1715U = 0xB9,		// PCI-1715U
-   BD_PCI1716L = 0xBA,		// PCI-1716L
-   BD_PCI1735U = 0xBB,		// PCI-1735U
-   BD_USB4711 = 0xBC,		// USB4711
-   BD_PCI1737U = 0xBD,		// PCI-1737U
-   BD_PCI1739U = 0xBE,		// PCI-1739U
-   BD_PCI1742U = 0xC0,		// PCI-1742U
-   BD_USB4718 = 0xC6,		// USB-4718
-   BD_MIC3755 = 0xC7,		// MIC3755
-   BD_USB4761 = 0xC8,		// USB4761
-   BD_PCI1784 = 0XCC,		// PCI-1784
-   BD_USB4716 = 0xCD,		// USB4716
-   BD_PCI1752U = 0xCE,		// PCI-1752U
-   BD_PCI1752USO = 0xCF,	// PCI-1752USO
-   BD_USB4751 = 0xD0,		// USB4751
-   BD_USB4751L = 0xD1,		// USB4751L
-   BD_USB4750 = 0xD2,		// USB4750
-   BD_MIC3713 = 0xD3,		// MIC-3713
-   BD_USB4711A = 0xD8,		// USB4711A
-   BD_PCM3753P = 0xD9,		// PCM3753P
-   BD_PCM3784  = 0xDA,		// PCM3784
+   BD_PCM3712 = 0x93,   // PCM-3712
+   BD_PCM3723 = 0x94,   // PCM-3723
+   BD_PCI1780 = 0x95,   // PCI-1780
+   BD_MIC3756 = 0x96,   // MIC-3756
+   BD_PCI1755 = 0x97,   // PCI-1755
+   BD_PCI1714 = 0x98,   // PCI-1714
+   BD_PCI1757 = 0x99,   // PCI-1757
+   BD_MIC3716 = 0x9A,   // MIC-3716
+   BD_MIC3761 = 0x9B,   // MIC-3761
+   BD_MIC3753 = 0x9C,      // MIC-3753
+   BD_MIC3780 = 0x9D,      // MIC-3780
+   BD_PCI1724 = 0x9E,      // PCI-1724
+   BD_PCI1758UDI = 0xA3,   // PCI-1758UDI
+   BD_PCI1758UDO = 0xA4,   // PCI-1758UDO
+   BD_PCI1747 = 0xA5,      // PCI-1747
+   BD_PCM3780 = 0xA6,      // PCM-3780 
+   BD_MIC3747 = 0xA7,      // MIC-3747
+   BD_PCI1758UDIO = 0xA8,   // PCI-1758UDIO
+   BD_PCI1712L = 0xA9,      // PCI-1712L
+   BD_PCI1763UP = 0xAC,      // PCI-1763UP
+   BD_PCI1736UP = 0xAD,      // PCI-1736UP
+   BD_PCI1714UL = 0xAE,      // PCI-1714UL
+   BD_MIC3714 = 0xAF,      // MIC-3714
+   BD_PCM3718HO = 0xB1,      // PCM-3718HO
+   BD_PCI1741U = 0xB3,      // PCI-1741U
+   BD_MIC3723 = 0xB4,      // MIC-3723 
+   BD_PCI1718HDU = 0xB5,   // PCI-1718HDU
+   BD_MIC3758DIO = 0xB6,   // MIC-3758DIO
+   BD_PCI1727U = 0xB7,      // PCI-1727U
+   BD_PCI1718HGU = 0xB8,   // PCI-1718HGU
+   BD_PCI1715U = 0xB9,      // PCI-1715U
+   BD_PCI1716L = 0xBA,      // PCI-1716L
+   BD_PCI1735U = 0xBB,      // PCI-1735U
+   BD_USB4711 = 0xBC,      // USB4711
+   BD_PCI1737U = 0xBD,      // PCI-1737U
+   BD_PCI1739U = 0xBE,      // PCI-1739U
+   BD_PCI1742U = 0xC0,      // PCI-1742U
+   BD_USB4718 = 0xC6,      // USB-4718
+   BD_MIC3755 = 0xC7,      // MIC3755
+   BD_USB4761 = 0xC8,      // USB4761
+   BD_PCI1784 = 0XCC,      // PCI-1784
+   BD_USB4716 = 0xCD,      // USB4716
+   BD_PCI1752U = 0xCE,      // PCI-1752U
+   BD_PCI1752USO = 0xCF,   // PCI-1752USO
+   BD_USB4751 = 0xD0,      // USB4751
+   BD_USB4751L = 0xD1,      // USB4751L
+   BD_USB4750 = 0xD2,      // USB4750
+   BD_MIC3713 = 0xD3,      // MIC-3713
+   BD_USB4711A = 0xD8,      // USB4711A
+   BD_PCM3753P = 0xD9,      // PCM3753P
+   BD_PCM3784  = 0xDA,      // PCM3784
    BD_PCM3761I = 0xDB,     // PCM-3761I
    BD_MIC3751  = 0xDC,     // MIC-3751
    BD_PCM3730I = 0xDD,     // PCM-3730I
    BD_PCM3813I = 0xE0,     // PCM-3813I
-   BD_PCIE1744	= 0xE1,     //PCIE-1744
-   BD_PCI1730U	= 0xE2, 	   // PCI-1730U
-   BD_PCI1760U	= 0xE3,	   //PCI-1760U
-   BD_MIC3720	= 0xE4,	   //MIC-3720
+   BD_PCIE1744   = 0xE1,     //PCIE-1744
+   BD_PCI1730U   = 0xE2,       // PCI-1730U
+   BD_PCI1760U   = 0xE3,      //PCI-1760U
+   BD_MIC3720   = 0xE4,      //MIC-3720
    BD_PCM3810I = 0xE9,     // PCM-3810I
    BD_USB4702  = 0xEA,     // USB4702
    BD_USB4704  = 0xEB,     // USB4704
    BD_PCM3810I_HG = 0xEC,  // PCM-3810I_HG
-   BD_PCI1713U = 0xED,		// PCI-1713U 
+   BD_PCI1713U = 0xED,      // PCI-1713U 
 
    // !!!BioDAQ only Product ID starts from here!!!
    BD_PCI1706U   = 0x800,
@@ -1674,7 +1755,29 @@ typedef enum tagProductId {
    BD_PCIE1802   = 0x818,
    BD_AIISE730   = 0x819,
    BD_PCIE1812   = 0x81A,
-   BD_MIOe3810   = 0x81B
+   BD_MIC1810    = 0x81B,
+   BD_PCIE1802L  = 0x81C,
+   BD_PCIE1813   = 0x81D,
+   BD_PCIE1840L  = 0x81E,
+   BD_PCIE1730H  = 0x81F,
+   BD_PCIE1756H  = 0x820,
+   BD_PCIERXM01  = 0x821,          // PCIe-RXM01
+   BD_MIC1816    = 0x822,
+   BD_USB5830    = 0x823,
+   BD_USB5850    = 0x824,
+   BD_USB5860    = 0x825,
+   BD_VPX1172    = 0x826,
+   BD_USB5855    = 0x827,
+   BD_USB5856    = 0x828,
+   BD_USB5862    = 0x829,
+   BD_PCIE1840T  = 0x82A,
+   BD_AudioCard  = 0x82B,
+   BD_AIIS1750   = 0x82C,
+   BD_PCIE1840HL = 0x82D,
+   BD_PCIE1765   = 0x82E,
+   BD_PCIE1761H  = 0x82F,
+   BD_PCIE1762H  = 0x830,
+   
 } ProductId;
 
 END_NAMEAPCE_AUTOMATION_BDAQ
@@ -1826,7 +1929,7 @@ typedef enum tagControlState
       virtual double         BDAQCALL getBurnoutRetValue() = 0;
       virtual ErrorCode      BDAQCALL setBurnoutRetValue(double value) = 0;
 
-      //new : Couping & IEPE
+      //new : Coupling & IEPE
       virtual CouplingType   BDAQCALL getCouplingType() = 0;
       virtual ErrorCode      BDAQCALL setCouplingType(CouplingType value) = 0;
       virtual IepeType       BDAQCALL getIepeType() = 0;
@@ -2178,11 +2281,11 @@ typedef enum tagControlState
 
       // add trigger 1
       virtual Trigger*      BDAQCALL getTrigger1() = 0;
-	  
-	  // add event
+     
+     // add event
       virtual void BDAQCALL addBurnOutListener(BfdAiEventListener & listener) = 0;
       virtual void BDAQCALL removeBurnOutListener(BfdAiEventListener & listener) = 0;
-	  
+     
       // helpers
       ErrorCode BDAQCALL GetData(int32 count, int16 rawData[])
       {
@@ -2454,9 +2557,9 @@ typedef enum tagControlState
       virtual ICollection<DiintChannel>* BDAQCALL getDiintChannels() = 0;
       virtual ICollection<DiCosintPort>* BDAQCALL getDiCosintPorts() = 0;
       virtual ICollection<DiPmintPort>*  BDAQCALL getDiPmintPorts() = 0;
-	  
+     
       // new method
-	   virtual ErrorCode BDAQCALL ReadBit(int32 port, int32 bit, uint8* data) = 0;
+      virtual ErrorCode BDAQCALL ReadBit(int32 port, int32 bit, uint8* data) = 0;
 
       // new property
       virtual double    BDAQCALL getNoiseFilterBlockTime() = 0;
@@ -2563,8 +2666,8 @@ typedef enum tagControlState
       // method
       virtual ErrorCode BDAQCALL WriteAny(int32 portStart, int32 portCount, uint8 data[]) = 0;
       virtual ErrorCode BDAQCALL ReadAny(int32 portStart, int32 portCount, uint8 data[]) = 0;
-	  virtual ErrorCode BDAQCALL WriteBit(int32 port, int32 bit, uint8 data) = 0;
-	  virtual ErrorCode BDAQCALL ReadBit(int32 port, int32 bit, uint8* data) = 0;
+     virtual ErrorCode BDAQCALL WriteBit(int32 port, int32 bit, uint8 data) = 0;
+     virtual ErrorCode BDAQCALL ReadBit(int32 port, int32 bit, uint8* data) = 0;
 
       // helpers
       ErrorCode BDAQCALL Write(int32 port, uint8 data)
@@ -3199,7 +3302,12 @@ typedef enum tagControlState
    __inline ErrorCode      AnalogInputChannel_setBurnoutRetType(AnalogInputChannel *_this, BurnoutRetType value) { return bdaq_obj_set(12, BurnoutRetType)(_this, value); }
    __inline double         AnalogInputChannel_getBurnoutRetValue(AnalogInputChannel *_this)                      { return bdaq_obj_get(13, double)(_this);                }
    __inline ErrorCode      AnalogInputChannel_setBurnoutRetValue(AnalogInputChannel *_this, double value)        { return bdaq_obj_set(14, double)(_this, value);         }
-
+   // New: Coupling & IEPE
+   __inline CouplingType   AnalogInputChannel_getCouplingType(AnalogInputChannel *_this)                         { return bdaq_obj_get(735, CouplingType)(_this);         }
+   __inline ErrorCode      AnalogInputChannel_setCouplingType(AnalogInputChannel *_this, CouplingType value)     { return bdaq_obj_set(736, CouplingType)(_this, value);  }
+   __inline IepeType       AnalogInputChannel_getIepeType(AnalogInputChannel *_this)                             { return bdaq_obj_get(737, IepeType)(_this);             }
+   __inline ErrorCode      AnalogInputChannel_setIepeType(AnalogInputChannel *_this, IepeType value)             { return bdaq_obj_set(738, IepeType)(_this, value);      }
+   
    // ----------------------------------------------------------
    // common classes : CjcSetting (method index: 15~18)
    // ----------------------------------------------------------
@@ -4281,6 +4389,11 @@ typedef enum tagControlState
          ErrorCode      AnalogInputChannel_setBurnoutRetType(AnalogInputChannel *_this, BurnoutRetType value);
          double         AnalogInputChannel_getBurnoutRetValue(AnalogInputChannel *_this);
          ErrorCode      AnalogInputChannel_setBurnoutRetValue(AnalogInputChannel *_this, double value);
+         //New: Coupling & IEPE
+         CouplingType   AnalogInputChannel_getCouplingType(AnalogInputChannel *_this);
+         ErrorCode      AnalogInputChannel_setCouplingType(AnalogInputChannel *_this, CouplingType value);
+         IepeType       AnalogInputChannel_getIepeType(AnalogInputChannel *_this);
+         ErrorCode      AnalogInputChannel_setIepeType(AnalogInputChannel *_this, IepeType value);
 
          // ----------------------------------------------------------
          // common classes : CjcSetting (method index: 15~18)
@@ -4721,7 +4834,7 @@ typedef enum tagControlState
          void         InstantDiCtrl_removePatternMatchListener(InstantDiCtrl *_this, DiSnapEventListener * listener);
          // method                                                                                                            
          ErrorCode    InstantDiCtrl_ReadAny(InstantDiCtrl *_this, int32 portStart, int32 portCount, uint8 data[]);
-		 ErrorCode    InstantDiCtrl_ReadBit(InstantDiCtrl *_this, int32 port, int32 bit, uint8* data);
+         ErrorCode    InstantDiCtrl_ReadBit(InstantDiCtrl *_this, int32 port, int32 bit, uint8* data);
          ErrorCode    InstantDiCtrl_SnapStart(InstantDiCtrl *_this);
          ErrorCode    InstantDiCtrl_SnapStop(InstantDiCtrl *_this);
          // property                                                                                                          
@@ -4845,7 +4958,7 @@ typedef enum tagControlState
          /* Instant DO methods */
          ErrorCode    InstantDoCtrl_WriteAny(InstantDoCtrl *_this, int32 portStart, int32 portCount, uint8 data[]);
          ErrorCode    InstantDoCtrl_ReadAny(InstantDoCtrl *_this, int32 portStart, int32 portCount, uint8 data[]);
-		 ErrorCode    InstantDoCtrl_WriteBit(InstantDoCtrl *_this, int32 port, int32 bit, uint8 data);
+         ErrorCode    InstantDoCtrl_WriteBit(InstantDoCtrl *_this, int32 port, int32 bit, uint8 data);
          ErrorCode    InstantDoCtrl_ReadBit(InstantDoCtrl *_this, int32 port, int32 bit, uint8* data);
 
          // ----------------------------------------------------------
@@ -5261,7 +5374,7 @@ typedef enum tagControlState
          // event
          void       BufferedAiCtrl_addBurnOutListener(BufferedAiCtrl *_this, BfdAiEventListener *listener);
          void       BufferedAiCtrl_removeBurnOutListener(BufferedAiCtrl *_this, BfdAiEventListener *listener);
-		 
+       
 #        endif
 
 #     ifdef __cplusplus

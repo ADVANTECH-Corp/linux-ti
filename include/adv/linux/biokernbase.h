@@ -67,6 +67,17 @@ int  daq_umem_map(unsigned long uaddr, unsigned count, int write, daq_umem_t *mi
 int  daq_umem_get_pages(unsigned long uaddr, unsigned count, int write, daq_umem_t *mi);
 int  daq_umem_map_pages(daq_umem_t *mi);
 void daq_umem_unmap(daq_umem_t *mi);
+int  daq_umem_alloc(unsigned size, daq_umem_t *mi, int dma32);
+void daq_umem_free(daq_umem_t *mi);
+
+typedef struct _daq_dmem {
+   unsigned size;
+   void    *kaddr;
+   __u64    daddr;
+} daq_dmem_t;
+
+int  daq_dmem_alloc(struct device *dev, unsigned size, daq_dmem_t *dmem);
+void daq_dmem_free(struct device *dev, daq_dmem_t *dmem);
 
 // -------------------------------------------------------------------------------
 // misc.c

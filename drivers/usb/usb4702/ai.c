@@ -41,7 +41,7 @@ int32 CalibrateData_4702(int32 rawData, int32 offset, int32 span)
    rawData += (rawData * (span - 128)) >> 10;
    rawData += adjust;
 
-   return max(min(rawData, AI_DATA_MASK_4702), 0);
+   return x_max(x_min(rawData, AI_DATA_MASK_4702), 0);
 }
 
 static inline
@@ -55,7 +55,7 @@ int32 CalibrateData_4704(int32 rawData, int32 offset, int32 span)
    rawData += (rawData * (span - 128)) >> 10;
    rawData += adjust;
 
-   return max(min(rawData, AI_DATA_MASK_4704), 0);
+   return x_max(x_min(rawData, AI_DATA_MASK_4704), 0);
 }
 
 //
@@ -118,12 +118,12 @@ int daq_fai_xfer_complete_4702(struct urb *urb, void *context)
        dest   = (int16*)daq_dev->fai_buffer.kaddr + faiStatus->WritePos;
 
        if (!(faiStatus->AcqMode == DAQ_ACQ_INFINITE)) {
-          dataNum = min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
+          dataNum = x_min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
           segTail = dataNum;
           segHead = 0;
        } else {
           if (dataNum <= faiStatus->BufLength) {
-             segTail = min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
+             segTail = x_min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
              segHead = dataNum - segTail;
           } else {
              __u32 skipped, wpos;
@@ -240,12 +240,12 @@ int daq_fai_xfer_complete_4704(struct urb *urb, void *context)
        dest   = (int16*)daq_dev->fai_buffer.kaddr + faiStatus->WritePos;
 
        if (!(faiStatus->AcqMode == DAQ_ACQ_INFINITE)) {
-          dataNum = min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
+          dataNum = x_min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
           segTail = dataNum;
           segHead = 0;
        } else {
           if (dataNum <= faiStatus->BufLength) {
-             segTail = min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
+             segTail = x_min(dataNum, faiStatus->BufLength - faiStatus->WritePos);
              segHead = dataNum - segTail;
           } else {
              __u32 skipped, wpos;
@@ -451,7 +451,7 @@ int daq_ioctl_ai_read_sample(daq_device_t *daq_dev, unsigned long arg)
    }
 
    phyChanStart = xbuf.PhyChanStart & AI_CHL_MASK;
-   logChanCount =  min(xbuf.LogChanCount, (__u32)AI_CHL_COUNT);
+   logChanCount =  x_min(xbuf.LogChanCount, (__u32)AI_CHL_COUNT);
    for (i = 0; i < logChanCount; ++i)
    {
       if (daq_usb_ai_read_channel(daq_dev, phyChanStart, sample + i) < 0)
@@ -484,7 +484,7 @@ int daq_ioctl_fai_set_param(daq_device_t *daq_dev, unsigned long arg)
    } else {
       shared->FaiParam              = xbuf;
       shared->FaiParam.PhyChanStart = xbuf.PhyChanStart & AI_CHL_MASK;
-      shared->FaiParam.LogChanCount = min(xbuf.LogChanCount, shared->AiLogChanCount);
+      shared->FaiParam.LogChanCount = x_min(xbuf.LogChanCount, shared->AiLogChanCount);
    }
    spin_unlock_irqrestore(&daq_dev->fai_lock, flags);
 
@@ -604,10 +604,7 @@ int daq_ioctl_fai_start(daq_device_t *daq_dev, unsigned long arg)
          phyChanStart &= ~1;
       }
 
-      //kernel_fpu_begin();
       SampleRate = shared->FaiParam.ConvClkRatePerCH  * shared->FaiParam.LogChanCount;
-      //kernel_fpu_end();
-
       shared->FaiStatus.CurrChan = 0; // '0' indicates the first scanning channel
       for (i = 0; i < shared->FaiParam.LogChanCount; ++i) {
          if (ChanConfig) { // differential

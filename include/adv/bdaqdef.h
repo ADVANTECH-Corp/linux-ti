@@ -32,9 +32,12 @@ $NoKeywords:  $
 #endif
 #include "bdaqctrl.h"
 
-#if !defined(__min) && !defined(__max)
-#  define __max(x, y) (((x) > (y)) ? (x) : (y))
-#  define __min(x, y) (((x) < (y)) ? (x) : (y))
+#ifndef x_max
+#define x_max(a,b)    (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef x_min
+#define x_min(a,b)    (((a) < (b)) ? (a) : (b))
 #endif
 
 #ifndef IN
@@ -100,5 +103,21 @@ $NoKeywords:  $
 #define DAQ_OUT_BUF_UNDERRUN     0x2
 #define DAQ_OUT_TRANSSTOPPED     0x4
 #define DAQ_OUT_CACHE_EMPTY      0x8
+
+
+//
+// Header part of the structure: DEVICE_SHARED
+// Usage:
+// typedef struct xxxxx {
+//    kshr_header Header;
+//    ......
+// } xxx;
+//
+typedef struct kshr_header {
+   uint32 size;         // size of the whole 'DEVICE_SHARED' structure, this is used to identify the different version of the structure.
+   uint32 prod_id;      // Device Type
+   uint32 dev_number;   // Zero-based device number
+} kshr_header;
+
 
 #endif /* _BIONIC_DAQ_TYPE_DEF_H */

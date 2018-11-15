@@ -186,7 +186,7 @@ int daq_event_wait(
    if (ctx.wait_result < 0){
       timeout = msecs_to_jiffies(timeout);
       do {
-         if (signal_pending(current)){
+         if (test_tsk_thread_flag(current, TIF_SIGPENDING)){
             ctx.wait_result = -EINTR;
             break;
          }

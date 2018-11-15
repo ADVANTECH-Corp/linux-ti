@@ -128,7 +128,7 @@ int daq_cntr_start_freq_measure(daq_device_t *daq_dev, __u32 start, __u32 count)
 
    if (shared->CntrConfig.FmPeroid[start]){
       shared->CntrState[start].AdaptivePeriod = false;
-      shared->CntrState[start].CheckPeriod = max(CNTR_CHK_PERIOD_MS, (int)(shared->CntrConfig.FmPeroid[start] / CNTR_RBUF_DEPTH));
+      shared->CntrState[start].CheckPeriod = x_max(CNTR_CHK_PERIOD_MS, (int)(shared->CntrConfig.FmPeroid[start] / CNTR_RBUF_DEPTH));
    } else {
       shared->CntrState[start].AdaptivePeriod = true;
       shared->CntrState[start].CheckPeriod = CNTR_CHK_PERIOD_MS; // default check period for self-adaptive measurement.

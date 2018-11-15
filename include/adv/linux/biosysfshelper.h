@@ -21,7 +21,7 @@ static ssize_t daq_show_desc(struct class_device * dev, char * buf)
 {
    daq_device_t * daq_dev = (daq_device_t *)class_get_devdata(dev);
 #ifdef DEVICE_NAME_FROM_PID
-   return sprintf(buf, "%s,BID#%d", DEVICE_NAME_FROM_PID(daq_dev->shared.ProductId),  daq_dev->shared.BoardId);
+   return sprintf(buf, "%s,BID#%d", DEVICE_NAME_FROM_PID(daq_dev->shared.ProductId), daq_dev->shared.BoardId);
 #else
    return sprintf(buf, DEVICE_NAME",BID#%d", daq_dev->shared.BoardId);
 #endif

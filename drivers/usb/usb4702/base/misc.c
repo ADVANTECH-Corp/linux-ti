@@ -224,7 +224,7 @@ int daq_plx905x_build_sgl(
 
    while (data_len) {
       curPA     = page_to_phys(*data_pages++);
-      curLen    = min((unsigned)PAGE_SIZE, data_len);
+      curLen    = x_min((unsigned)PAGE_SIZE, data_len);
       data_len -= curLen;
 
       while (curLen) {

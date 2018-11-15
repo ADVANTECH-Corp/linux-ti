@@ -45,10 +45,7 @@ static void daq_device_load_setting(daq_device_t  *daq_dev)
    shared->FaiParam.PhyChanStart     = DEF_FAI_CHSTART;
    shared->FaiParam.LogChanCount     = DEF_FAI_CHCOUNT;
    shared->FaiParam.ConvClkSource    = DEF_FAI_CLKSRC;
-//   shared->FaiParam.PacerDivider     = DEF_FAI_PACERDIVISOR;
-//   kernel_fpu_begin();
    shared->FaiParam.ConvClkRatePerCH = AI_CLK_BASE / DEF_FAI_PACERDIVISOR;
-//   kernel_fpu_end();
    shared->FaiParam.SectionSize      = DEF_FAI_SECTSIZE;
 
    // AO

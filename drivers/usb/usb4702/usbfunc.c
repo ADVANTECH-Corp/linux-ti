@@ -25,31 +25,47 @@
    })
 
 static inline
-int __daq_usb_control_in_idx(struct usb_device *usb_dev, __u8 major, __u16 minor, __u16 idx, void *data, __u16 size)
+int __daq_usb_control_in_idx(daq_device_t *daq_dev, __u8 major, __u16 minor, __u16 idx, void *data, __u16 size)
 {
-   return usb_control_msg(usb_dev, usb_rcvctrlpipe(usb_dev, 0),
+   int ret;
+   if (WARN(size > CTRL_XFER_MAXLEN, "Control transfer length exceeds the limiation")) {
+      return -EINVAL;
+   }
+
+   ret = usb_control_msg(daq_dev->udev, usb_rcvctrlpipe(daq_dev->udev, 0),
             major, USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-            minor, idx, data, size, USB_CTRL_GET_TIMEOUT);
+            minor, idx, daq_dev->ctrl_xfer_buff, size, USB_CTRL_GET_TIMEOUT);
+
+   if (ret > 0) {
+      memcpy(data, daq_dev->ctrl_xfer_buff, size);
+   }
+
+   return ret;
 }
 
 static inline
-int __daq_usb_control_in(struct usb_device *usb_dev, __u8 major, __u16 minor, void *data, __u16 size)
+int __daq_usb_control_in(daq_device_t *daq_dev, __u8 major, __u16 minor, void *data, __u16 size)
 {
-   return __daq_usb_control_in_idx(usb_dev, major, minor, 0, data, size);
+   return __daq_usb_control_in_idx(daq_dev, major, minor, 0, data, size);
 }
 
 static inline
-int __daq_usb_control_out_idx(struct usb_device *usb_dev, __u8 major, __u16 minor, __u16 idx, void *data, __u16 size)
+int __daq_usb_control_out_idx(daq_device_t *daq_dev, __u8 major, __u16 minor, __u16 idx, void *data, __u16 size)
 {
-   return usb_control_msg(usb_dev, usb_sndctrlpipe(usb_dev, 0),
+   if (WARN(size > CTRL_XFER_MAXLEN, "Control transfer length exceeds the limiation")) {
+      return -EINVAL;
+   }
+
+   memcpy(daq_dev->ctrl_xfer_buff, data, size);
+   return usb_control_msg(daq_dev->udev, usb_sndctrlpipe(daq_dev->udev, 0),
             major, USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
-            minor, idx, data, size,  USB_CTRL_SET_TIMEOUT);
+            minor, idx, daq_dev->ctrl_xfer_buff, size,  USB_CTRL_SET_TIMEOUT);
 }
 
 static inline
-int __daq_usb_control_out(struct usb_device *usb_dev, __u8 major, __u16 minor, void *data, __u16 size)
+int __daq_usb_control_out(daq_device_t *daq_dev, __u8 major, __u16 minor, void *data, __u16 size)
 {
-   return __daq_usb_control_out_idx(usb_dev, major, minor, 0, data, size);
+   return __daq_usb_control_out_idx(daq_dev, major, minor, 0, data, size);
 }
 
 // -----------------------------------------------------------------------------------------
@@ -58,7 +74,7 @@ int __daq_usb_control_out(struct usb_device *usb_dev, __u8 major, __u16 minor, v
 int daq_usb_dev_get_firmware_ver(daq_device_t *daq_dev, char ver[], int len)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in(daq_dev->udev, MAJOR_SYSTEM, MINOR_GET_FW_VERSION, ver, len));
+            __daq_usb_control_in(daq_dev, MAJOR_SYSTEM, MINOR_GET_FW_VERSION, ver, len));
 }
 
 int daq_usb_dev_init_firmware(daq_device_t *daq_dev, int is_open)
@@ -66,21 +82,21 @@ int daq_usb_dev_init_firmware(daq_device_t *daq_dev, int is_open)
    __u32 dummy = 0; // Unused, but firmware required.
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_out(daq_dev->udev, MAJOR_SYSTEM,
+            __daq_usb_control_out(daq_dev, MAJOR_SYSTEM,
                is_open ? MINOR_DEVICE_OPEN : MINOR_DEVICE_CLOSE, &dummy, sizeof(dummy)));
 }
 
 int daq_usb_dev_locate_device(daq_device_t *daq_dev, __u32 enable)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_out(daq_dev->udev, MAJOR_SYSTEM, MINOR_LOCATE, &enable, sizeof(enable)));
+            __daq_usb_control_out(daq_dev, MAJOR_SYSTEM, MINOR_LOCATE, &enable, sizeof(enable)));
 }
 
 int daq_usb_dev_get_board_id_oscsd(daq_device_t *daq_dev, __u32 *id, __u8 *aiChType, __u8 *oscillator)
 {
-   __u32 bidOscSd;
+   __u32 bidOscSd = 0;
    int ret = DO_CTRL_XFER_LOCKED(daq_dev,
-               __daq_usb_control_in(daq_dev->udev, MAJOR_SYSTEM, MINOR_READ_SWITCHID, &bidOscSd, sizeof(__u32)));
+               __daq_usb_control_in(daq_dev, MAJOR_SYSTEM, MINOR_READ_SWITCHID, &bidOscSd, sizeof(__u32)));
    *id = bidOscSd & 0xf;
    *aiChType = (__u8)(bidOscSd & 0x10)>>4;
    *oscillator = (__u8)(bidOscSd & 0x20)>>5;
@@ -98,25 +114,25 @@ int daq_usb_dev_set_board_id_oscsd(daq_device_t *daq_dev, __u32 id, __u8 aiChTyp
    id = __cpu_to_be32(id);
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_out(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, &id, sizeof(__u32)));
+            __daq_usb_control_out(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, &id, sizeof(__u32)));
 }
 
 int daq_usb_dev_get_flag(daq_device_t *daq_dev, __u32 *flag)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in(daq_dev->udev, MAJOR_SYSTEM, MINOR_GET_USB_FLAG, flag, sizeof(__u32)));
+            __daq_usb_control_in(daq_dev, MAJOR_SYSTEM, MINOR_GET_USB_FLAG, flag, sizeof(__u32)));
 }
 
 int daq_usb_dev_dbg_input(daq_device_t *daq_dev, __u16 majorCmd, __u16 minorCmd, __u32 dataSize, void *data)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_in(daq_dev->udev, majorCmd, minorCmd, data, dataSize));
+             __daq_usb_control_in(daq_dev, majorCmd, minorCmd, data, dataSize));
 }
 
 int daq_usb_dev_dbg_output(daq_device_t *daq_dev, __u16 majorCmd, __u16 minorCmd, __u32 dataSize, void *data)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_out(daq_dev->udev, majorCmd, minorCmd, data, dataSize));
+             __daq_usb_control_out(daq_dev, majorCmd, minorCmd, data, dataSize));
 }
 
 int daq_usb_get_last_error(daq_device_t *daq_dev, __u32 *error)
@@ -125,7 +141,7 @@ int daq_usb_get_last_error(daq_device_t *daq_dev, __u32 *error)
    int ret;
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_in(daq_dev->udev, MAJOR_SYSTEM, MINOR_GET_LAST_ERROR, &val, sizeof(val)));
+             __daq_usb_control_in(daq_dev, MAJOR_SYSTEM, MINOR_GET_LAST_ERROR, &val, sizeof(val)));
 
    if (ret > 0){
       *error = __be32_to_cpu(val);
@@ -146,7 +162,7 @@ int daq_usb_ai_configure_channel(daq_device_t *daq_dev, __u32 phyChan, __u8 chan
    data = __cpu_to_be32(data);
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, ADn_IN(phyChan), &data, sizeof(data)));
+             __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, ADn_IN(phyChan), &data, sizeof(data)));
 }
 
 int daq_usb_ai_read_channel(daq_device_t *daq_dev, __u32 phyChan, __u16 *sample)
@@ -159,9 +175,9 @@ int daq_usb_ai_read_channel(daq_device_t *daq_dev, __u32 phyChan, __u16 *sample)
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,\
          ({
-            ret = __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, SET_TRIGERMODE, &trigMode, sizeof(trigMode));
+            ret = __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, SET_TRIGERMODE, &trigMode, sizeof(trigMode));
             if (ret > 0) {
-               ret = __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, ADn_IN(phyChan), &chData, sizeof(chData));
+               ret = __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, ADn_IN(phyChan), &chData, sizeof(chData));
             }
             ret;
          }));
@@ -178,7 +194,7 @@ int daq_usb_fai_get_cali_info(daq_device_t *daq_dev, __u32 gain, __u32 chan, __u
    __u32 calibInfo;
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, ADn_CALI_GET_Gm(chan, gain), &calibInfo, sizeof(calibInfo)));
+                __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, ADn_CALI_GET_Gm(chan, gain), &calibInfo, sizeof(calibInfo)));
    if (ret > 0){
       calibInfo = __be32_to_cpu(calibInfo);
       *offset = (__u8)( (calibInfo & 0xffff) >> 8 );
@@ -208,7 +224,7 @@ int daq_usb_fai_start(daq_device_t *daq_dev, __u16 phyChanStart, __u16 logChanCo
    chanProp = __cpu_to_be32(chanProp);
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_CHANNEL_PROPERY_SET, &chanProp, sizeof(chanProp)));
+                __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_CHANNEL_PROPERY_SET, &chanProp, sizeof(chanProp)));
    if (ret < 0)
       return ret;
 
@@ -226,7 +242,7 @@ int daq_usb_fai_start(daq_device_t *daq_dev, __u16 phyChanStart, __u16 logChanCo
    devProp = __cpu_to_be32(devProp);
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_DEV_PROPERY_SET, &devProp, sizeof(devProp)));
+                __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_DEV_PROPERY_SET, &devProp, sizeof(devProp)));
    if (ret < 0)
       return ret;
 
@@ -235,21 +251,21 @@ int daq_usb_fai_start(daq_device_t *daq_dev, __u16 phyChanStart, __u16 logChanCo
    convNum = __cpu_to_be32(convNum);
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_CONVNUM_SET, &convNum, sizeof(convNum)));
+                __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_CONVNUM_SET, &convNum, sizeof(convNum)));
    if (ret < 0)
       return ret;
 
    // Start
    startCmd = 0;
    return DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_START, &startCmd, sizeof(startCmd)));
+                __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_START, &startCmd, sizeof(startCmd)));
 }
 
 int daq_usb_fai_stop(daq_device_t *daq_dev)
 {
    __u32 stopCmd = 0;
    return DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_STOP, &stopCmd, sizeof(stopCmd)));
+             __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, FAI_STOP, &stopCmd, sizeof(stopCmd)));
 }
 
 // -----------------------------------------------------------------------------------------
@@ -262,7 +278,7 @@ int daq_usb_ao_write_channel(daq_device_t *daq_dev, __u32 phyChan, __u32 data)
    binData = __cpu_to_be32(binData);
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, (__u16)DAn_OUT(phyChan), &binData, sizeof(binData)));
+             __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, (__u16)DAn_OUT(phyChan), &binData, sizeof(binData)));
 }
 
 // -----------------------------------------------------------------------------------------
@@ -274,7 +290,7 @@ int daq_usb_di_read_port(daq_device_t *daq_dev, __u8 *data)
    int ret;
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, DI_IN, &diData, sizeof(diData)));
+             __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, DI_IN, &diData, sizeof(diData)));
 
    if (ret > 0){
       *data = (__u8)__be32_to_cpu(diData);
@@ -288,7 +304,7 @@ int daq_usb_do_write_port(daq_device_t *daq_dev, __u8 *data)
    doData = __cpu_to_be32(doData);
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-                __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, DO_OUT, &doData, sizeof(doData)));
+                __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, DO_OUT, &doData, sizeof(doData)));
 }
 
 int daq_usb_do_read_port(daq_device_t *daq_dev, __u8 *data)
@@ -297,7 +313,7 @@ int daq_usb_do_read_port(daq_device_t *daq_dev, __u8 *data)
    int ret;
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-             __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, DO_STATUS_GET, &doData, sizeof(doData)));
+             __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, DO_STATUS_GET, &doData, sizeof(doData)));
 
    if (ret > 0){
       *data = (__u8)__be32_to_cpu(doData);
@@ -311,7 +327,7 @@ int daq_usb_do_read_port(daq_device_t *daq_dev, __u8 *data)
 int daq_usb_cntr_get_base_clk(daq_device_t *daq_dev, __u32 *clk)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in(daq_dev->udev, MAJOR_COUNTER, MINOR_CNT_GET_BASECLK, clk, sizeof(*clk)));
+            __daq_usb_control_in(daq_dev, MAJOR_COUNTER, MINOR_CNT_GET_BASECLK, clk, sizeof(*clk)));
 }
 
 int daq_usb_cntr_reset(daq_device_t *daq_dev, __u32 counter)
@@ -319,7 +335,7 @@ int daq_usb_cntr_reset(daq_device_t *daq_dev, __u32 counter)
    __u32 dummy = 0;
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, COUNTER_STOP, &dummy, sizeof(dummy)));
+            __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, COUNTER_STOP, &dummy, sizeof(dummy)));
 }
 
 int daq_usb_cntr_start_event_count(daq_device_t *daq_dev, __u32 counter)
@@ -327,29 +343,29 @@ int daq_usb_cntr_start_event_count(daq_device_t *daq_dev, __u32 counter)
    __u32 dummy = 0;
 
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_out_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, COUNTER_START, &dummy, sizeof(dummy)));
+            __daq_usb_control_out_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_WRITE, COUNTER_START, &dummy, sizeof(dummy)));
 }
 
 int daq_usb_cntr_read_event_count_aysn(daq_device_t *daq_dev, __u32 counter, __u32 *cntrValue)
 {
    return DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_READ, cntrValue, sizeof(__u32)));
+            __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_READ, cntrValue, sizeof(__u32)));
 }
 
 int daq_usb_cntr_read_event_count(daq_device_t *daq_dev, __u32 counter, __u32 *cntrValue, __u16 *overflow)
 {
-   __u32 count;
-   __u32 overFlow;
+   __u32 count = 0;
+   __u32 overFlow = 0;
    int ret;
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_CHECK, &overFlow, sizeof(overFlow)));
+            __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_CHECK, &overFlow, sizeof(overFlow)));
    if (ret < 0){
       return ret;
    }
 
    ret = DO_CTRL_XFER_LOCKED(daq_dev,
-            __daq_usb_control_in_idx(daq_dev->udev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_READ, &count, sizeof(count)));
+            __daq_usb_control_in_idx(daq_dev, MAJOR_DIRECT_IO, MINOR_DIRECT_READ, COUNTER_READ, &count, sizeof(count)));
    if (ret < 0){
          return ret;
    }

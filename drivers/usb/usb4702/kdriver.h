@@ -19,14 +19,17 @@
 #include <linux/slab.h>
 #include <linux/mm.h>
 #include <linux/workqueue.h>
-#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 #include <asm/io.h>
-//#include <asm/i387.h>
 #include <linux/fs.h>
 #include <linux/interrupt.h>
 #include <linux/sched.h>
 #include <linux/delay.h>
 
+//#include <bdaq_def.h>
+//#include <bdaq_kern.h>
+//#include <property_id.h>
+//#include <ioctls.h>
 #include <adv/bdaqdef.h>
 #include <adv/linux/ioctls.h>
 #include <adv/linux/biokernbase.h>
@@ -37,6 +40,7 @@
 
 #define FAI_PACKET_NUM   4
 #define FAI_PACKET_SIZE  PAGE_SIZE
+#define CTRL_XFER_MAXLEN 64
 
 typedef struct daq_file_ctx{
    struct list_head   ctx_list;
@@ -52,9 +56,11 @@ typedef struct daq_device
    struct cdev          cdev;
    struct usb_device    *udev;
    struct usb_interface *iface;
-   struct mutex         ctrl_pipe_lock;
    struct usb_endpoint_descriptor *xfer_epd;
    daq_usb_reader_t     usb_reader;
+
+   struct mutex         ctrl_pipe_lock;
+   unsigned char        ctrl_xfer_buff[CTRL_XFER_MAXLEN];
 
    spinlock_t           dev_lock;
 

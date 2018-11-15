@@ -262,6 +262,27 @@ int daq_ioctl_dev_dbg_usb_out(daq_device_t *daq_dev, unsigned long arg)
    return ret;
 }
 
+static
+int daq_ioctl_dev_get_hwinfo(daq_device_t *daq_dev, unsigned long arg)
+{
+   DEVICE_SHARED *shared = &daq_dev->shared;
+   DEVICE_HWINFO info = {
+      shared->DeviceNumber,
+      shared->ProductId,
+      shared->BoardId,
+      {0},
+      DRVSPEC_DN3,
+      DRIVER_NAME,
+   };
+
+   snprintf(info.DeviceName, sizeof(info.DeviceName), "%s", DEVICE_NAME_FROM_PID(shared->ProductId));
+
+   if (unlikely(copy_to_user((void *)arg, &info, sizeof(info)))) {
+      return -EFAULT;
+   }
+   return 0;
+}
+
 //-------------------------------------------------------------------------------
 //
 //-------------------------------------------------------------------------------
@@ -405,6 +426,9 @@ long daq_file_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
       break;
    case IOCTL_DEVICE_DBG_USB_OUT:
       ret = daq_ioctl_dev_dbg_usb_out(daq_dev, arg);
+      break;
+   case IOCTL_DEVICE_GET_HWINFO:
+      ret = daq_ioctl_dev_get_hwinfo(daq_dev, arg);
       break;
    //******************************************************************************************
    // IOCTL for AI operation                                                                 *
