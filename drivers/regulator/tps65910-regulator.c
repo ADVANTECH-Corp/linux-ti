@@ -27,6 +27,11 @@
 #include <linux/regulator/of_regulator.h>
 
 #define TPS65910_SUPPLY_STATE_ENABLED	0x1
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#define VIOCURRENT 0X41
+#endif
+
 #define EXT_SLEEP_CONTROL (TPS65910_SLEEP_CONTROL_EXT_INPUT_EN1 |	\
 			TPS65910_SLEEP_CONTROL_EXT_INPUT_EN2 |		\
 			TPS65910_SLEEP_CONTROL_EXT_INPUT_EN3 |		\
@@ -1210,6 +1215,9 @@ static int tps65910_probe(struct platform_device *pdev)
 		/* Save regulator for cleanup */
 		pmic->rdev[i] = rdev;
 	}
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+       tps65910_reg_write(pmic->mfd, TPS65910_VIO, VIOCURRENT);
+#endif
 	return 0;
 }
 
