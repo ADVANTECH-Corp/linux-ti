@@ -295,10 +295,13 @@ static void serial_omap_enable_ms(struct uart_port *port)
 	pm_runtime_put_autosuspend(up->dev);
 }
 
+static inline void wait_for_xmitr(struct uart_omap_port *up);
+
 static void serial_omap_stop_tx(struct uart_port *port)
 {
 	struct uart_omap_port *up = to_uart_omap_port(port);
 	int res;
+	int val;
 
 	pm_runtime_get_sync(up->dev);
 
@@ -724,13 +727,12 @@ static void serial_omap_break_ctl(struct uart_port *port, int break_state)
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH	
 static int set_232_485_by_gpio(struct  uart_omap_port *up){
+	unsigned int number,delay,len;
+	int i,val,ret,rs485_flag;
+	const __be32 *gpio_number;
+	struct device_node *parent_np;
+	struct device_node *child_np;
 	if(up->port.line == 1) {
-		unsigned int number,delay,len;
-		int i,val,ret,rs485_flag;
-		const __be32 *gpio_number;
-		struct device_node *parent_np;
-		struct device_node *child_np;
-
 		child_np = of_find_node_by_path("/ocp/serial@48022000");
 		if(child_np){
 			gpio_number = of_get_property(child_np, "adv_rs485flag_gpio", &len);
@@ -757,10 +759,65 @@ static int set_232_485_by_gpio(struct  uart_omap_port *up){
 				up->port.rs485.flags &= ~SER_RS485_ENABLED;	//disable 485 mode
 			}
 		}	
-	} else {
-		up->port.rs485.flags &= ~SER_RS485_ENABLED;	//disable 485 mode
 	}
+	else if(up->port.line == 3) {
+                child_np = of_find_node_by_path("/ocp/serial@481a6000");
+                if(child_np){
+                        gpio_number = of_get_property(child_np, "adv_rs485flag_gpio", &len);
+                        if (gpio_number == NULL)
+                                return 0;
+                        number = be32_to_cpu(gpio_number[0]);
+
+                        if( number < 256 ){
+                                gpio_request(number, "RS232_422_485_Sel");
+                                gpio_direction_input(number);
+                                rs485_flag = gpio_get_value(number);
+                        }else{
+                                rs485_flag = ext_pca953x_gpio_get_output_value( (number % 32) -10);
+                        }
+
+                        if(rs485_flag) {
+                                volatile unsigned int *port_addr = ioremap(0x44E108cc,0x4);
+                                *port_addr = 0x17;   //gpio  output  pullup.
+                                printk(KERN_DEBUG "port 3 is 485\n");
+                                up->port.rs485.flags |= SER_RS485_ENABLED;      //enable 485 mode
+                                gpio_set_value(up->rts_gpio, 1);   //set gpio0_13(uart1_rts pin) high
+                        } else {
+                                printk(KERN_DEBUG "port 3 is 232\n");
+                                up->port.rs485.flags &= ~SER_RS485_ENABLED;     //disable 485 mode
+                        }
+                }
+        }
+	else if(up->port.line == 4) {
+                child_np = of_find_node_by_path("/ocp/serial@481a8000");
+                if(child_np){
+                        gpio_number = of_get_property(child_np, "adv_rs485flag_gpio", &len);
+                        if (gpio_number == NULL)
+                                return 0;
+                        number = be32_to_cpu(gpio_number[0]);
+
+                        if( number < 256 ){
+                                gpio_request(number, "RS232_422_485_Sel");
+                                gpio_direction_input(number);
+                                rs485_flag = gpio_get_value(number);
+                        }else{
+                                rs485_flag = ext_pca953x_gpio_get_output_value( (number % 32) -10);
+                        }
+
+                        if(rs485_flag) {
+                                volatile unsigned int *port_addr = ioremap(0x44E108d4,0x4);
+                                *port_addr = 0x17;   //gpio  output  pullup.
+                                printk(KERN_DEBUG "port 4 is 485\n");
+                                up->port.rs485.flags |= SER_RS485_ENABLED;      //enable 485 mode
+                                gpio_set_value(up->rts_gpio, 1);   //set gpio0_13(uart1_rts pin) high
+                        } else {
+                                printk(KERN_DEBUG "port 4 is 232\n");
+                                up->port.rs485.flags &= ~SER_RS485_ENABLED;     //disable 485 mode
+                        }
+                }
+        }
 }
+
 #endif
 
 static int serial_omap_startup(struct uart_port *port)

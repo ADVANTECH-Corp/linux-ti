@@ -717,6 +717,62 @@ static int adv_gpio_init(struct pca953x_chip *chip)
 	return 0;
 }
 
+int adv_pca953x_gpio_get_output_value(struct gpio_chip *gc, unsigned off)
+{
+	struct pca953x_chip *chip = to_pca(gc);
+	u32 reg_val;
+	int ret, offset = 0;
+
+	mutex_lock(&chip->i2c_lock);
+	switch (chip->chip_type) {
+	case PCA953X_TYPE:
+		offset = PCA953X_OUTPUT;
+		break;
+	case PCA957X_TYPE:
+		offset = PCA957X_OUT;
+		break;
+	}
+	ret = pca953x_read_single(chip, offset, &reg_val, off);
+	mutex_unlock(&chip->i2c_lock);
+	if (ret < 0) {
+		/* NOTE:  diagnostic already emitted; that's all we should
+		 * do unless gpio_*_value_cansleep() calls become different
+		 * from their nonsleeping siblings (and report faults).
+		 */
+		return 0;
+	}
+
+	return (reg_val & (1u << (off % BANK_SZ))) ? 1 : 0;
+}
+
+int adv_pca953x_gpio_get_direction(struct gpio_chip *gc, unsigned off)
+{
+	struct pca953x_chip *chip = to_pca(gc);
+	u32 reg_val;
+	int ret, offset = 0;
+
+	mutex_lock(&chip->i2c_lock);
+	switch (chip->chip_type) {
+	case PCA953X_TYPE:
+		offset = PCA953X_DIRECTION;
+		break;
+	case PCA957X_TYPE:
+		offset = PCA957X_CFG;
+		break;
+	}
+	ret = pca953x_read_single(chip, offset, &reg_val, off);
+	mutex_unlock(&chip->i2c_lock);
+	if (ret < 0) {
+		/* NOTE:  diagnostic already emitted; that's all we should
+		 * do unless gpio_*_value_cansleep() calls become different
+		 * from their nonsleeping siblings (and report faults).
+		 */
+		return 0;
+	}
+
+	return (reg_val & (1u << (off % BANK_SZ))) ? 1 : 0;
+}
+
 struct pca953x_chip *ext_chip;
 int ext_pca953x_gpio_get_value(unsigned off)
 {
@@ -725,6 +781,23 @@ int ext_pca953x_gpio_get_value(unsigned off)
 	gc = &ext_chip->gpio_chip;
 	return pca953x_gpio_get_value(gc,off);
 }
+
+int ext_pca953x_gpio_get_output_value(unsigned off)
+{
+        struct gpio_chip *gc;
+
+        gc = &ext_chip->gpio_chip;
+        return adv_pca953x_gpio_get_output_value(gc,off);
+}
+
+int ext_pca953x_gpio_get_direction(unsigned off)
+{
+        struct gpio_chip *gc;
+
+        gc = &ext_chip->gpio_chip;
+        return adv_pca953x_gpio_get_direction(gc,off);
+}
+
 #endif
 
 static int pca953x_probe(struct i2c_client *client,

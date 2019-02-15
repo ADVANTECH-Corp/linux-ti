@@ -1215,9 +1215,11 @@ static int tps65910_probe(struct platform_device *pdev)
 		/* Save regulator for cleanup */
 		pmic->rdev[i] = rdev;
 	}
+
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
        tps65910_reg_write(pmic->mfd, TPS65910_VIO, VIOCURRENT);
 #endif
+
 	return 0;
 }
 

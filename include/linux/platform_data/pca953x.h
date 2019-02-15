@@ -29,6 +29,8 @@ struct pca953x_platform_data {
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH	
 int ext_pca953x_gpio_get_value(unsigned off);
+int ext_pca953x_gpio_get_output_value(unsigned off);
+int ext_pca953x_gpio_get_direction(unsigned off);
 #endif
 
 #endif /* _LINUX_PCA953X_H */

@@ -208,7 +208,8 @@ static void __mmc_start_request(struct mmc_host *host, struct mmc_request *mrq)
 	 * For sdio rw commands we must wait for card busy otherwise some
 	 * sdio devices won't work properly.
 	 */
-#ifndef CONFIG_ARCH_AM57XX_ADVANTECH
+//#ifndef CONFIG_ARCH_AM57XX_ADVANTECH
+#if (!defined(CONFIG_ARCH_AM335X_ADVANTECH)) && (!defined(CONFIG_ARCH_AM57XX_ADVANTECH))
 	if (mmc_is_io_op(mrq->cmd->opcode) && host->ops->card_busy) {
 		int tries = 500; /* Wait aprox 500ms at maximum */
 
