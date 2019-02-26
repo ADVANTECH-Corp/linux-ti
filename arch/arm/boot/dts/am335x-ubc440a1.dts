@@ -735,7 +735,7 @@
 	dma-names = "tx", "rx";
 	status = "okay";
 	vmmc-supply = <&vmmc_reg>;
-	bus-width = <1>;
+	bus-width = <4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc3_pins>;
 	ti,non-removable;
