@@ -695,7 +695,7 @@ static struct class *spidev_class;
 static const struct of_device_id spidev_dt_ids[] = {
 	{ .compatible = "rohm,dh2228fv" },
 	{ .compatible = "lineartechnology,ltc2488" },
-#ifdef CONFIG_ARCH_AM57XX_ADVANTECH
+#if (defined(CONFIG_ARCH_AM335X_ADVANTECH)) || (defined(CONFIG_ARCH_AM57XX_ADVANTECH))
 	{ .compatible = "spidev"},
 #endif
 	{},
