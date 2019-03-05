@@ -204,7 +204,6 @@
 			0x164 ( PIN_OUTPUT | MUX_MODE1 ) /* (C18) eCAP0_in_PWM0_out.uart3_txd */
 			0xc8 ( PIN_INPUT | MUX_MODE6 ) /* (U3) lcd_data10.uart3_ctsn */
 			0xcc ( PIN_OUTPUT | MUX_MODE6 ) /* (U4) lcd_data11.uart3_rtsn */
-			/*0xcc ( PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (U4) lcd_data11.uart3_rtsn */
 		>;
 	};
 
@@ -217,13 +216,21 @@
 		>;
 	};
 
+	uart3_rs485_mode: pinmux_uart3_rs485 {
+                pinctrl-single,pins = <
+			0x160 ( PIN_INPUT | MUX_MODE1 ) /* (C15) spi0_cs1.uart3_rxd */
+			0x164 ( PIN_OUTPUT | MUX_MODE1 ) /* (C18) eCAP0_in_PWM0_out.uart3_txd */
+			0xc8 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* (U3) lcd_data10.uart3_ctsn */
+                        0xcc ( PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (U4) lcd_data11.uart3_rtsn */
+                >;
+	};
+
 	uart4_pins_default: pinmux_uart4_pins_default {
 		pinctrl-single,pins = <
 			0x70 (PIN_INPUT_PULLUP | MUX_MODE6)		/* gpmc_wait0.uart4_rxd */
 			0x74 (PIN_OUTPUT_PULLDOWN | MUX_MODE6) 		/* gpmc_wpn.uart4_txd */
 			0xd0 ( PIN_INPUT | MUX_MODE6 ) /* (V2) lcd_data12.uart4_ctsn */
 			0xd4 ( PIN_OUTPUT | MUX_MODE6 ) /* (V3) lcd_data13.uart4_rtsn */
-			/*0xd4 ( PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (V3) lcd_data13.uart4_rtsn */
 		>;
 	};
 
@@ -233,6 +240,15 @@
 			0x74 (PIN_INPUT_PULLDOWN | MUX_MODE7)
 			0xd0 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* (V2) lcd_data12.uart4_ctsn */
 			0xd4 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* (V3) lcd_data13.uart4_rtsn */
+		>;
+	};
+
+	uart4_rs485_mode: pinmux_uart4_rs485 {
+		pinctrl-single,pins = <
+			0x70 (PIN_INPUT_PULLUP | MUX_MODE6)		/* gpmc_wait0.uart4_rxd */
+			0x74 (PIN_OUTPUT_PULLDOWN | MUX_MODE6) 		/* gpmc_wpn.uart4_txd */
+			0xd0 (PIN_INPUT_PULLDOWN | MUX_MODE7) /* (V2) lcd_data12.uart4_ctsn */
+			0xd4 ( PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (V3) lcd_data13.uart4_rtsn */
 		>;
 	};
 
@@ -467,8 +483,9 @@
 };
 
 &uart3 {
-	pinctrl-names = "default";
+	pinctrl-names = "default","rs485_mode";
 	pinctrl-0 = <&uart3_pins_default>;
+	pinctrl-1 = <&uart3_rs485_mode>;
 	rts-gpio = <&gpio2 17 GPIO_ACTIVE_LOW>;
 	rs485-rts-active-high;
 	rs485-rx-during-tx;
@@ -479,8 +496,9 @@
 };
 
 &uart4 {
-	pinctrl-names = "default";
+	pinctrl-names = "default","rs485_mode";
 	pinctrl-0 = <&uart4_pins_default>;
+	pinctrl-1 = <&uart4_rs485_mode>;
 	rts-gpio = <&gpio0 9 GPIO_ACTIVE_HIGH>;
 	rs485-rts-active-high;
 	rs485-rx-during-tx;
@@ -525,7 +543,7 @@
 		compatible = "nxp,pca9555";
 		reg = <0x22>;
 		polarity = <0>;
-        default_value = <0 0 0 0 0 0 0 0 0 1 1 0 1 1 0 0>;
+        default_value = <0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0>;
         default_direction = <0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0>;
         export_flag = <1 1 1 1 1 1 0 0 1 1 1 1 1 1 0 0>;
 		status = "okay";
