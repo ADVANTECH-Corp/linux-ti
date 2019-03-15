@@ -630,16 +630,17 @@
 		vdd1_reg: regulator@2 {
 			/* VDD_MPU voltage limits 0.95V - 1.26V with +/-4% tolerance */
 			regulator-name = "vdd_mpu";
-			regulator-min-microvolt = <1060000>;
-			regulator-max-microvolt = <1351500>;
+			regulator-min-microvolt = <1062500>;
+			regulator-max-microvolt = <1337500>;
 			regulator-boot-on;
 			regulator-always-on;
+			adv-regulate-value = <1>;
 		};
 
 		vdd2_reg: regulator@3 {
 			/* VDD_CORE voltage limits 0.95V - 1.1V with +/-4% tolerance */
 			regulator-name = "vdd_core";
-			regulator-min-microvolt = <1060000>;
+			regulator-min-microvolt = <1062500>;
 			regulator-max-microvolt = <1150000>;
 			regulator-boot-on;
 			regulator-always-on;
@@ -857,6 +858,10 @@
 };
 
 &gpio2 {
+	ti,no-reset-on-init;
+};
+
+&gpio3 {
 	ti,no-reset-on-init;
 };
 
