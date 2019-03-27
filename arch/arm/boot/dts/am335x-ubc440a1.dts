@@ -634,7 +634,6 @@
 			regulator-max-microvolt = <1337500>;
 			regulator-boot-on;
 			regulator-always-on;
-			adv-regulate-value = <3>;
 		};
 
 		vdd2_reg: regulator@3 {

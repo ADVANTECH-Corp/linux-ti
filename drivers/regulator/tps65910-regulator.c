@@ -613,24 +613,8 @@ static int tps65910_set_voltage_dcdc_sel(struct regulator_dev *dev,
 		dcdc_mult = (selector / VDD1_2_NUM_VOLT_FINE) + 1;
 		if (dcdc_mult == 1)
 			dcdc_mult--;
-
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-		struct device_node *child_np;
-		const __be32 *regulate_value;
-		unsigned int value,len;
-		child_np = of_find_node_by_path("/ocp/i2c@44e0b000/tps@2d/regulators/regulator@2");
-		if(child_np)
-			regulate_value = of_get_property(child_np, "adv-regulate-value", &len);
-
-		if (regulate_value == NULL)
-			value = 3;
-		else
-			value = be32_to_cpu(regulate_value[0]);
-
-		vsel = (selector % VDD1_2_NUM_VOLT_FINE) + value;
-#else
 		vsel = (selector % VDD1_2_NUM_VOLT_FINE) + 3;
-#endif
+
 		tps65910_reg_update_bits(pmic->mfd, TPS65910_VDD1,
 					 VDD1_VGAIN_SEL_MASK,
 					 dcdc_mult << VDD1_VGAIN_SEL_SHIFT);
