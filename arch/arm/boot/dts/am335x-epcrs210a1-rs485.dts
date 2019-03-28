@@ -18,7 +18,7 @@
 #include <dt-bindings/interrupt-controller/irq.h>
 
 / {
-	model = "UBC-440 A101-4";
+	model = "EPC-RS210 A101-1";
 	compatible = "ti,am335x-evmsk", "ti,am33xx";
 
 	cpus {
@@ -543,7 +543,7 @@
 		compatible = "nxp,pca9555";
 		reg = <0x22>;
 		polarity = <0>;
-        default_value = <0 0 0 0 0 0 0 0 1 0 0 1 0 0 0 0>;
+        default_value = <0 0 0 0 0 0 0 0 0 1 1 0 1 1 0 0>;
         default_direction = <0 0 0 0 0 0 0 0 1 1 1 1 1 1 0 0>;
         export_flag = <1 1 1 1 1 1 0 0 1 1 1 1 1 1 0 0>;
 		status = "okay";
