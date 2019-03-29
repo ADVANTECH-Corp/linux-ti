@@ -2017,9 +2017,9 @@ static struct usb_serial_driver option_1port_device = {
 #ifdef CONFIG_PM
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
-#endif
 #if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
 	.reset_resume	   = usb_wwan_resume,
+#endif
 #endif
 
 };
