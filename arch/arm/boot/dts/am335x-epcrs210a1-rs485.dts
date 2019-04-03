@@ -594,7 +594,7 @@
 	status = "okay";
 
 	ecap2: ecap@48304100 {
-		status = "okay";
+		status = "disabled";
 		pinctrl-names = "default";
 		pinctrl-0 = <&ecap2_pins>;
 	};
