@@ -1,0 +1,75 @@
+/*
+ * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "keystone-k2g-ice.dts"
+
+&pruss0_eth {
+	pinctrl-names = "sync0_off", "sync0_on", "sync1_off", "sync1_on";
+	pinctrl-0 = <&pr0_edc_sync0_off>;
+	pinctrl-1 = <&pr0_edc_sync0_on>;
+	pinctrl-2 = <&pr0_edc_sync1_off>;
+	pinctrl-3 = <&pr0_edc_sync1_on>;
+};
+
+&pruss1_eth {
+	pinctrl-names = "sync0_off", "sync0_on", "sync1_off", "sync1_on";
+	pinctrl-0 = <&pr1_edc_sync0_off>;
+	pinctrl-1 = <&pr1_edc_sync0_on>;
+	pinctrl-2 = <&pr1_edc_sync1_off>;
+	pinctrl-3 = <&pr1_edc_sync1_on>;
+};
+
+&k2g_pinctrl {
+	pr0_edc_sync0_on: pr0_edc_sync0_on {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1278) (BUFFER_CLASS_B | MUX_MODE2)	/* pr0_pru0_gpo19.pr0_edc_sync0_out */
+		>;
+	};
+
+	pr0_edc_sync0_off: pr0_edc_sync0_off {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1278) (BUFFER_CLASS_B | MUX_MODE3)	/* pr0_pru0_gpo19.pr0_edc_sync0_out */
+		>;
+	};
+
+	pr0_edc_sync1_on: pr0_edc_sync1_on {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x12c8) (BUFFER_CLASS_B | MUX_MODE2)	/* pr0_pru1_gpo19.pr0_edc_sync1_out */
+		>;
+	};
+
+	pr0_edc_sync1_off: pr0_edc_sync1_off {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x12c8) (BUFFER_CLASS_B | MUX_MODE3)	/* pr0_pru1_gpo19.pr0_edc_sync1_out */
+		>;
+	};
+
+	pr1_edc_sync0_on: pr1_edc_sync0_on {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1320) (BUFFER_CLASS_B | MUX_MODE2)	/* pr1_pru0_gpo19.pr1_edc_sync0_out */
+		>;
+	};
+
+	pr1_edc_sync0_off: pr1_edc_sync0_off {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1320) (BUFFER_CLASS_B | MUX_MODE3)	/* pr1_pru0_gpo19.pr1_edc_sync0_out */
+		>;
+	};
+
+	pr1_edc_sync1_on: pr1_edc_sync1_on {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1370) (BUFFER_CLASS_B | MUX_MODE2)	/* pr1_pru1_gpo19.pr1_edc_sync1_out */
+		>;
+	};
+
+	pr1_edc_sync1_off: pr1_edc_sync1_off {
+		pinctrl-single,pins = <
+			K2G_CORE_IOPAD(0x1370) (BUFFER_CLASS_B | MUX_MODE3)	/* pr1_pru1_gpo19.pr1_edc_sync1_out */
+		>;
+	};
+};

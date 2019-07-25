@@ -1,0 +1,44 @@
+/*
+ * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "am437x-idk-evm.dts"
+
+&pruss1_eth {
+	pinctrl-names = "default", "sync0_off", "sync0_on", "sync1_off", "sync1_on";
+	pinctrl-0 = <&pruss1_eth_default>;
+	pinctrl-1 = <&pr1_edc_sync0_off>;
+	pinctrl-2 = <&pr1_edc_sync0_on>;
+	pinctrl-3 = <&pr1_edc_sync1_off>;
+	pinctrl-4 = <&pr1_edc_sync1_on>;
+};
+
+&am43xx_pinmux {
+	pr1_edc_sync0_on: pr1_edc_sync0_on {
+		pinctrl-single,pins = <
+			AM4372_IOPAD(0x968, PIN_OUTPUT | MUX_MODE6)	/* uart0_ctsn.pr1_edc_sync0_out */
+		>;
+	};
+
+	pr1_edc_sync0_off: pr1_edc_sync0_off {
+		pinctrl-single,pins = <
+			AM4372_IOPAD(0x968, PIN_OUTPUT | MUX_MODE7)	/* uart0_ctsn.pr1_edc_sync0_out */
+		>;
+	};
+
+	pr1_edc_sync1_on: pr1_edc_sync1_on {
+		pinctrl-single,pins = <
+			AM4372_IOPAD(0x96C, PIN_OUTPUT | MUX_MODE6)	/* uart0_rtsn.pr1_edc_sync1_out */
+		>;
+	};
+
+	pr1_edc_sync1_off: pr1_edc_sync1_off {
+		pinctrl-single,pins = <
+			AM4372_IOPAD(0x96C, PIN_OUTPUT | MUX_MODE7)	/* uart0_rtsn.pr1_edc_sync1_out */
+		>;
+	};
+};

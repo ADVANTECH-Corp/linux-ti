@@ -1,0 +1,83 @@
+Texas Instruments ICSSG PRUSS Ethernet
+======================================
+
+Required properties:
+- compatible       : Should be "ti,am654-icssg-prueth" for AM65x Family SoCs
+		     Should be "ti,am654-dualicssg-prueth" for AM65x Family
+		     SoCs when two ICSSG are paired.
+- prus             : list of pHandles to the PRU and RTU nodes
+- firmware-name    : should contain the name of the firmware image
+			file located in the firmware search path
+- sram	           : phandle to MSMC SRAM node
+- dmas		   : list of phandles and specifiers to UDMA as specified in
+			bindings/dma/ti/k3-udma.txt. Order should be
+			Slice0 TX, Slice0 RX, Slice1 TX, Slice1 RX.
+- dma-names	   : Names for the DMA channels.
+			Should be "tx0", "rx0",	"tx1", "rx1"
+- mii-g-rt	   : phandle to MII_G_RT module's syscon regmap.
+- mii-g-rt-paired  : phandle to paired ICSSG's MII_G_RT module's syscon
+		     regmap.
+- mii-rt	   : phandle to MII_RT module's syscon regmap.
+- mii-rt-paired    : phandle to paired ICSSG's MII_RT module's syscon
+		     regmap.
+
+Must contain children, one for each of the MAC ports.
+Children must be named ethernet-mii0 and ethernet-mii1.
+Either one or both children can be present. If only one
+child is present driver operates in single EMAC mode.
+
+For single mode operation with the 2nd SLICE, you still need
+to provide both PRUs and RTUs and firmware-names but the firmware-name
+for the first PRU & RTU can be NULL.
+
+Required properties for children:
+- phy-handle       : See ethernet.txt file in the same directory.
+- phy-mode         : See ethernet.txt file in the same directory.
+- syscon-rgmii-delay : phandle to system controller node and register offset
+			to ICSSG control register for RGMII transmit delay.
+
+Optional properties for children:
+- local-mac-address	: mac address for the port.
+- enable-rgmii-delay	: boolean property. If present will enable
+			   ICSSG's internal RGMII transmit delay.
+
+Example (k3-am654 base board, dual-emac):
+========================================
+
+	/* Dual Ethernet application node on PRU-ICSSG2 */
+	pruss2_eth: pruss2_eth {
+		compatible = "ti,am654-icssg-prueth";
+		pinctrl-names = "default";
+		pinctrl-0 = <&icssg2_rgmii_pins_default>;
+		sram = <&msmc_ram>;
+		interrupt-parent = <&k3_irq>;
+
+		prus = <&pru2_0>, <&rtu2_0>, <&pru2_1>, <&rtu2_1>;
+		firmware-name = "ti-pruss/am65x-pru0-prueth-fw.elf",
+				"ti-pruss/am65x-rtu0-prueth-fw.elf",
+				"ti-pruss/am65x-pru1-prueth-fw.elf",
+				"ti-pruss/am65x-rtu1-prueth-fw.elf";
+
+		dma-coherent;
+		dmas = <&main_udmap &icssg2 0 UDMA_DIR_TX>,	/* SLICE 0 */
+		       <&main_udmap &icssg2 0 UDMA_DIR_RX>,
+		       <&main_udmap &icssg2 4 UDMA_DIR_TX>,	/* SLICE 1 */
+		       <&main_udmap &icssg2 1 UDMA_DIR_RX>;
+		dma-names = "tx0", "rx0", "tx1", "rx1";
+
+		pruss2_emac0: ethernet-mii0 {
+			phy-handle = <&pruss2_eth0_phy>;
+			phy-mode = "rgmii-id";
+			syscon-rgmii-delay = <&scm_conf 0x4120>;
+			/* Filled in by bootloader */
+			local-mac-address = [00 00 00 00 00 00];
+		};
+
+		pruss2_emac1: ethernet-mii1 {
+			phy-handle = <&pruss2_eth1_phy>;
+			phy-mode = "rgmii-id";
+			syscon-rgmii-delay = <&scm_conf 0x4124>;
+			/* Filled in by bootloader */
+			local-mac-address = [00 00 00 00 00 00];
+		};
+	};
