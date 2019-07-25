@@ -1939,6 +1939,18 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE_AND_INTERFACE_INFO(WETELECOM_VENDOR_ID, WETELECOM_PRODUCT_6802, 0xff, 0xff, 0xff) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(WETELECOM_VENDOR_ID, WETELECOM_PRODUCT_WMD300, 0xff, 0xff, 0xff) },
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0x421d, 0xff, 0xff, 0xff) }, /* HP lt2523 (Novatel E371) */
+#if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
+	{ USB_DEVICE(0x05C6, 0x9090)},/* Quectel UC15*/
+	{ USB_DEVICE(0x05C6, 0x9003)},/* Quectel UC20*/
+	{ USB_DEVICE(0x2C7C, 0x0125)},/* Quectel EC25*/
+	{ USB_DEVICE(0x2C7C, 0x0121)},/* Quectel EC21*/
+	{ USB_DEVICE(0x05C6, 0x9215)},/* Quectel EC20*/
+	{ USB_DEVICE(0x2C7C, 0x0191)},/* Quectel EG91*/
+	{ USB_DEVICE(0x2C7C, 0x0195)},/* Quectel EG95*/
+	{ USB_DEVICE(0x2C7C, 0x0306)},/* Quectel EG06/EP06/EM06*/
+	{ USB_DEVICE(0x2C7C, 0x0296)},/* Quectel BG96*/
+	{ USB_DEVICE(0x2C7C, 0x0435)},/* Quectel AG35*/
+#endif
 	{ } /* Terminating entry */
 };
 MODULE_DEVICE_TABLE(usb, option_ids);
@@ -1973,6 +1985,9 @@ static struct usb_serial_driver option_1port_device = {
 #ifdef CONFIG_PM
 	.suspend           = usb_wwan_suspend,
 	.resume            = usb_wwan_resume,
+#if defined(CONFIG_ARCH_AM335X_ADVANTECH) || defined(CONFIG_ARCH_AM57XX_ADVANTECH)
+	.reset_resume      = usb_wwan_resume,
+#endif
 #endif
 };
 

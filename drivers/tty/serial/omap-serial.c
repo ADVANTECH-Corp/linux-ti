@@ -47,6 +47,10 @@
 
 #include <dt-bindings/gpio/gpio.h>
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#include <linux/platform_data/pca953x.h>
+#endif
+
 #define OMAP_MAX_HSUART_PORTS	10
 
 #define UART_BUILD_REVISION(x, y)	(((x) << 8) | (y))
@@ -719,6 +723,66 @@ static void serial_omap_break_ctl(struct uart_port *port, int break_state)
 	pm_runtime_put_autosuspend(up->dev);
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+struct device_node *np_bak[6];
+
+static int set_232_485_by_gpio(struct  uart_omap_port *up){
+	unsigned int number,delay,len;
+	int i,val,ret,rs485_flag;
+	const __be32 *gpio_number;
+	struct device_node *parent_np;
+	struct device_node *child_np;
+	struct pinctrl *pinctrl;
+	struct pinctrl_state    *state;
+
+	child_np = of_find_node_by_path(np_bak[up->port.line]->full_name);
+	if(child_np){
+		gpio_number = of_get_property(child_np, "adv_rs485flag_gpio", &len);
+		if (gpio_number == NULL)
+			return 0;
+		number = be32_to_cpu(gpio_number[0]);
+
+		if( number < 256 ){
+			gpio_request(number, "RS232_422_485_Sel");
+			gpio_direction_input(number);
+			rs485_flag = gpio_get_value(number);
+		}else{
+			rs485_flag = adv_pca953x_get_rs485_value( (number % 32) -10);
+		}
+
+		if(rs485_flag) {
+			pinctrl = devm_pinctrl_get(up->port.dev);
+			if (!IS_ERR(pinctrl)) {
+				state = pinctrl_lookup_state(pinctrl,"rs485_mode");
+				if (!IS_ERR(state)){
+					ret = pinctrl_select_state(pinctrl, state);
+					if(ret){
+						dev_dbg(up->port.dev,"pinctrl_select_state rts_gpio failed!");
+					}
+					else {
+					}
+				} else
+				{
+					dev_dbg(up->port.dev, "pinctrl_lookup_state rts_gpio failed!");
+				}
+			} else
+			{
+				dev_dbg(up->port.dev, "devm_pinctrl_get rts_gpio failed!");
+			}
+			printk(KERN_DEBUG "port %d is 485\n",up->port.line);
+			up->port.rs485.flags |= SER_RS485_ENABLED;      //enable 485 mode
+			if (of_property_read_bool(child_np, "rs485-rts-active-high"))
+				gpio_set_value(up->rts_gpio, 0);   
+			else
+				gpio_set_value(up->rts_gpio, 1);
+		} else {
+			printk(KERN_DEBUG "port %d is 232\n",up->port.line);
+			up->port.rs485.flags &= ~SER_RS485_ENABLED;     //disable 485 mode
+		}
+	}
+}
+#endif
+
 static int serial_omap_startup(struct uart_port *port)
 {
 	struct uart_omap_port *up = to_uart_omap_port(port);
@@ -791,6 +855,11 @@ static int serial_omap_startup(struct uart_port *port)
 	pm_runtime_mark_last_busy(up->dev);
 	pm_runtime_put_autosuspend(up->dev);
 	up->port_activity = jiffies;
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	set_232_485_by_gpio(up);
+#endif
+
 	return 0;
 }
 
@@ -1717,6 +1786,10 @@ static int serial_omap_probe(struct platform_device *pdev)
 	if (!up->wakeirq)
 		dev_info(up->port.dev, "no wakeirq for uart%d\n",
 			 up->port.line);
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	np_bak[up->port.line] = pdev->dev.of_node;
+#endif
 
 	ret = serial_omap_probe_rs485(up, pdev->dev.of_node);
 	if (ret < 0)

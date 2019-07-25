@@ -19,6 +19,8 @@ obj-$(CONFIG_WLAN_VENDOR_ST) += st/
 obj-$(CONFIG_WLAN_VENDOR_TI) += ti/
 obj-$(CONFIG_WLAN_VENDOR_ZYDAS) += zydas/
 obj-$(CONFIG_WLAN_VENDOR_QUANTENNA) += quantenna/
+obj-$(CONFIG_MARVELL_WIFI_EWM_W306_ADVANTECH) += adv_marvell_wifi_ewm_w306/
+obj-$(CONFIG_MARVELL_WIFI_AW_CM389NF_ADVANTECH) += adv_marvell_wifi_aw_cm389nf/
 
 # 16-bit wireless PCMCIA client drivers
 obj-$(CONFIG_PCMCIA_RAYCS)	+= ray_cs.o

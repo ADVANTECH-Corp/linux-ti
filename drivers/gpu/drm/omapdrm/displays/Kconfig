@@ -114,4 +114,7 @@ config DRM_OMAP_PANEL_NEC_NL8048HL11
 		This NEC NL8048HL11 panel is TFT LCD used in the
 		Zoom2/3/3630 sdp boards.
 
+config FB_CH7055
+        depends on I2C && FB
+        tristate "Chrontel CH7055 VGA Interface Chip"
 endmenu
