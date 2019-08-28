@@ -810,8 +810,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
 	if (r != 0){
-		if(omap_i2c_get_sda(adap) == 0){
-			ret = adv_omap_i2c_recovery(adap);
+			ret = omap_i2c_recover_bus(omap);
 			if(ret == 0)
 			{
 				for (i = 0; i < num; i++) {
@@ -820,7 +819,6 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 						break;
 				}
 			}
-		}
 	}
 #endif
 
