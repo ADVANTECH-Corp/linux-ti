@@ -783,9 +783,6 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	struct omap_i2c_dev *omap = i2c_get_adapdata(adap);
 	int i;
 	int r;
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	int ret = 0;
-#endif
 
 	r = pm_runtime_get_sync(omap->dev);
 	if (r < 0)
@@ -802,25 +799,16 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	if (omap->set_mpu_wkup_lat != NULL)
 		omap->set_mpu_wkup_lat(omap->dev, omap->latency);
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	omap_i2c_recover_bus(omap);
+	msleep(1);
+#endif
+
 	for (i = 0; i < num; i++) {
 		r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
 		if (r != 0)
 			break;
 	}
-
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	if (r != 0){
-			ret = omap_i2c_recover_bus(omap);
-			if(ret == 0)
-			{
-				for (i = 0; i < num; i++) {
-					r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
-					if (r != 0)
-						break;
-				}
-			}
-	}
-#endif
 
 	if (r == 0)
 		r = num;
