@@ -769,6 +769,9 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
 	return -EIO;
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static int omap_i2c_get_sda(struct i2c_adapter *adap);
+#endif
 
 /*
  * Prepare controller for a transaction and call omap_i2c_xfer_msg
@@ -780,6 +783,9 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 	struct omap_i2c_dev *omap = i2c_get_adapdata(adap);
 	int i;
 	int r;
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	int ret = 0;
+#endif
 
 	r = pm_runtime_get_sync(omap->dev);
 	if (r < 0)
@@ -801,6 +807,22 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 		if (r != 0)
 			break;
 	}
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	if (r != 0){
+		if(omap_i2c_get_sda(adap) == 0){
+			ret = adv_omap_i2c_recovery(adap);
+			if(ret == 0)
+			{
+				for (i = 0; i < num; i++) {
+					r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+					if (r != 0)
+						break;
+				}
+			}
+		}
+	}
+#endif
 
 	if (r == 0)
 		r = num;

@@ -27,6 +27,10 @@
 #include <linux/proc-board.h>
 #endif
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#include <asm/system_misc.h>
+#endif
+
 #define ADV_WDT_WCR		0x00		/* Control Register */
 #define ADV_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
 #define ADV_WDT_WCR_WRE	(1 << 3)	/* -> WDOG Reset Enable */
@@ -41,6 +45,11 @@
 #define ADV_WDT_WRSR_TOUT	(1 << 1)	/* -> Reset due to Timeout */
 
 #define ADV_WDT_MAX_TIME	6527		/* in seconds */
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#define ADV_WDT_MIN_TIME	1		/* in seconds */
+#endif
+
 #define ADV_WDT_DEFAULT_TIME	60		/* in seconds */
 
 #define WDOG_SEC_TO_COUNT(s)	(s * 10)	/* Time unit for register: 100ms */
@@ -79,6 +88,10 @@ static struct {
 static struct miscdevice adv_wdt_miscdev;
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static void *original_arm_pm_restart;
+#endif
 
 module_param(nowayout, bool, 0);
 
@@ -342,6 +355,14 @@ static int adv_wdt_restart_handle(struct notifier_block *this, unsigned long mod
 {
 	if (test_and_set_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status))
 		return -EBUSY;
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	if (!test_and_set_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status))
+	{
+		/* at our first start we enable clock and do initialisations */
+		gpio_set_value(gpio_wdt_en, !adv_wdt.wdt_en_off);
+	}
+	while(1);
+#endif
 	adv_wdt_start();
 	adv_wdt.timeout = 1;
 	adv_wdt_i2c_set_timeout(adv_client, adv_wdt.timeout);
@@ -454,6 +475,11 @@ static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_
 		goto fail;
 	}
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	original_arm_pm_restart = arm_pm_restart;
+	arm_pm_restart=NULL;
+#endif
+
 	return 0;
 
 fail:
@@ -475,6 +501,11 @@ static int __exit adv_wdt_i2c_remove(struct i2c_client *client)
 	clear_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status);
 	clear_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status);
 	adv_wdt_miscdev.parent = NULL;
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	arm_pm_restart = original_arm_pm_restart;
+#endif
+
 	return 0;
 }
 
@@ -499,13 +530,27 @@ static int adv_wdt_i2c_suspend(struct device *dev)
 
 static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 {
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	unsigned int tmp = 0;
+#endif
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) {
 		/* we are running, we need to delete the timer but will give
 		 * max timeout before reboot will take place */
 		gpio_set_value(gpio_wdt_en, adv_wdt.wdt_en_off);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_wdt_i2c_set_timeout(client, ADV_WDT_MIN_TIME);
+#else
 		adv_wdt_i2c_set_timeout(client, ADV_WDT_MAX_TIME);
+#endif
 		adv_wdt_ping();
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_wdt_i2c_read_timeout(client, &tmp);
+		if((tmp & 0xFFFF) != (ADV_WDT_MIN_TIME * 10))
+		{
+			adv_wdt_i2c_set_timeout(client, ADV_WDT_MIN_TIME);
+		}
+#endif
 		dev_crit(adv_wdt_miscdev.parent,
 			"Device shutdown: Expect reboot!\n");
 	}
