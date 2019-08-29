@@ -532,6 +532,7 @@ static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 {
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
 	unsigned int tmp = 0;
+	int i;
 #endif
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) {
 		/* we are running, we need to delete the timer but will give
@@ -545,9 +546,12 @@ static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 		adv_wdt_ping();
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
-		adv_wdt_i2c_read_timeout(client, &tmp);
-		if((tmp & 0xFFFF) != (ADV_WDT_MIN_TIME * 10))
-		{
+		for(i=0; i<3; i++){
+			adv_wdt_i2c_read_timeout(client, &tmp);
+			if((tmp & 0xFFFF) == (ADV_WDT_MIN_TIME * 10))
+			{
+				break;
+			}
 			adv_wdt_i2c_set_timeout(client, ADV_WDT_MIN_TIME);
 		}
 #endif
