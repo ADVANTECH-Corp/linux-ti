@@ -312,8 +312,8 @@
 
 	wdt_pins_default: pinmux_wdt_pins_default {
 		pinctrl-single,pins = <
-			AM33XX_IOPAD(0x89c, PIN_OUTPUT | MUX_MODE7 ) /* (T6) gpmc_be0n_cle.gpio2[5] */
-			AM33XX_IOPAD(0x898, PIN_OUTPUT_PULLDOWN | MUX_MODE7) 		/* gpmc_wen.gpio2_4 */
+			AM33XX_IOPAD(0x89c, PIN_OUTPUT_PULLUP | MUX_MODE7 ) /* (T6) gpmc_be0n_cle.gpio2[5] */
+			AM33XX_IOPAD(0x898, PIN_OUTPUT_PULLUP | MUX_MODE7) 		/* gpmc_wen.gpio2_4 */
 		>;
 	};
 
