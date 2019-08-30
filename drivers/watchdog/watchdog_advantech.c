@@ -547,11 +547,13 @@ static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
 		for(i=0; i<3; i++){
+			msleep(10);
 			adv_wdt_i2c_read_timeout(client, &tmp);
 			if((tmp & 0xFFFF) == (ADV_WDT_MIN_TIME * 10))
 			{
 				break;
 			}
+			msleep(10);
 			adv_wdt_i2c_set_timeout(client, ADV_WDT_MIN_TIME);
 		}
 #endif
