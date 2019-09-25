@@ -8,8 +8,6 @@
 #include <linux/types.h>
 #include <linux/regmap.h>
 
-#include "icssg_prueth.h"
-
 #define ICSSG_NUM_CLASSIFIERS	16
 #define ICSSG_NUM_FT1_SLOTS	8
 #define ICSSG_NUM_FT3_SLOTS	16
@@ -105,13 +103,6 @@ enum rx_class_sel_type {
 
 #define ICSSG_CFG_OFFSET	0
 #define RGMII_CFG_OFFSET	4
-
-/* MII RT offsets */
-#define MII_RT_TX_IPG0		0x30
-#define MII_RT_TX_IPG1		0x34
-/* IPG Values to set */
-#define MII_RT_TX_IPG_100M	0x166
-#define MII_RT_TX_IPG_1G	0x18
 
 #define ICSSG_CFG_RX_L2_G_EN	BIT(2)
 
@@ -377,53 +368,4 @@ void icssg_class_promiscuous(struct regmap *miig_rt, int slice)
 	/* Enable RX_L2_G */
 	regmap_update_bits(miig_rt, ICSSG_CFG_OFFSET, ICSSG_CFG_RX_L2_G_EN,
 			   ICSSG_CFG_RX_L2_G_EN);
-}
-
-#define RGMII_GIG_EN_MASK_MII0	BIT(17)
-#define RGMII_GIG_EN_MASK_MII1	BIT(21)
-#define RGMII_DUPLEX_MASK_MII0	BIT(18)
-#define RGMII_DUPLEX_MASK_MII1	BIT(22)
-
-void icssg_update_rgmii_cfg(struct regmap *miig_rt, bool gig_en, bool duplex,
-			    int slice)
-{
-	u32 gig_mask, duplex_mask;
-
-	if (slice == ICSS_SLICE0) {
-		gig_mask = RGMII_GIG_EN_MASK_MII0;
-		duplex_mask = RGMII_DUPLEX_MASK_MII0;
-	} else {
-		gig_mask = RGMII_GIG_EN_MASK_MII1;
-		duplex_mask = RGMII_DUPLEX_MASK_MII1;
-	}
-
-	if (gig_en)
-		regmap_update_bits(miig_rt, RGMII_CFG_OFFSET,
-				   gig_mask, gig_mask);
-	else
-		regmap_update_bits(miig_rt, RGMII_CFG_OFFSET,
-				   gig_mask, 0);
-
-	if (duplex)
-		regmap_update_bits(miig_rt, RGMII_CFG_OFFSET,
-				   duplex_mask, duplex_mask);
-	else
-		regmap_update_bits(miig_rt, RGMII_CFG_OFFSET,
-				   duplex_mask, 0);
-}
-
-void icssg_update_mii_rt_cfg(struct regmap *mii_rt, int speed,
-			     int slice)
-{
-	u32 offset;
-
-	if (slice == ICSS_SLICE0)
-		offset = MII_RT_TX_IPG0;
-	else
-		offset = MII_RT_TX_IPG1;
-
-	if (speed == SPEED_1000)
-		regmap_write(mii_rt, offset, MII_RT_TX_IPG_1G);
-	else
-		regmap_write(mii_rt, offset, MII_RT_TX_IPG_100M);
 }

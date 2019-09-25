@@ -173,24 +173,21 @@ static struct sk_buff *create_stripped_skb_hsr(struct sk_buff *skb_in,
 static struct sk_buff *frame_get_stripped_skb(struct hsr_prp_frame_info *frame,
 					      struct hsr_prp_port *port)
 {
-	struct hsr_prp_priv *priv = port->priv;
-
 	if (!frame->skb_std) {
 		if (frame->skb_hsr) {
 			frame->skb_std =
 				create_stripped_skb_hsr(frame->skb_hsr, frame);
 		} else if (frame->skb_prp) {
 			/* trim the skb by len - HSR_PRP_HLEN to exclude
-			 * RCT if configured to remove RCT
+			 * RCT
 			 */
-			if (!priv->rx_offloaded &&
-			    priv->prp_tr == IEC62439_3_TR_REMOVE_RCT)
-				skb_trim(frame->skb_prp,
-					 frame->skb_prp->len - HSR_PRP_HLEN);
+			skb_trim(frame->skb_prp,
+				 frame->skb_prp->len - HSR_PRP_HLEN);
 			frame->skb_std =
 				__pskb_copy(frame->skb_prp,
 					    skb_headroom(frame->skb_prp),
-							 GFP_ATOMIC);
+					    GFP_ATOMIC);
+
 		} else {
 			/* Unexpected */
 			WARN_ONCE(1, "%s:%d: Unexpected frame received (port_src %s)\n",

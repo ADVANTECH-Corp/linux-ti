@@ -186,18 +186,18 @@ void node_table_update_time(struct node_tbl *nt)
 	int j;
 	u16 ofs;
 	struct nt_array_t *nt_arr = nt->nt_array;
-	struct node_tbl_t *node;
+	struct node_tbl_t node;
 
 	for (j = 0; j < nt->bin_array_max_entries; j++) {
 		ofs = nt->bin_array->bin_tbl[j].node_tbl_offset;
 		if (ofs < nt->nt_array_max_entries) {
-			node = &nt_arr->node_tbl[ofs];
-			inc_time(&node->time_last_seen_a);
-			inc_time(&node->time_last_seen_b);
+			node = nt_arr->node_tbl[ofs];
+			inc_time(&node.time_last_seen_a);
+			inc_time(&node.time_last_seen_b);
 			/* increment time_last_seen_s if nod is not SAN */
-			if ((node->status &
+			if ((node.status &
 			     NT_REM_NODE_TYPE_SANAB) == 0)
-				inc_time(&node->time_last_seen_s);
+				inc_time(&node.time_last_seen_s);
 		}
 	}
 }

@@ -800,8 +800,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 		omap->set_mpu_wkup_lat(omap->dev, omap->latency);
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	omap_i2c_recover_bus(omap);
-	msleep(1);
+	usleep_range(500, 600);
 #endif
 
 	for (i = 0; i < num; i++) {

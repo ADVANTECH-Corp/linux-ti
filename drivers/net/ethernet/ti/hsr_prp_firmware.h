@@ -14,7 +14,7 @@
 #ifndef __ICSS_SWITCH_HSR_PRP_H
 #define __ICSS_SWITCH_HSR_PRP_H
 
-#define RED_TAG_RCT_SIZE                 6       /* HSR tag or PRP RCT size */
+#define HSR_TAG_SIZE                     6       /* HSR tag size */
 
 #define LRE_HSR_MODE                      0x1E76
 #define MODEH                             0x01
@@ -147,14 +147,6 @@
 #define IEC62439_CONST_DUPLICATE_DISCARD                0x02
 #define IEC62439_CONST_TRANSPARENT_RECEPTION_REMOVE_RCT 0x01
 #define IEC62439_CONST_TRANSPARENT_RECEPTION_PASS_RCT   0x02
-
-/* Enable/disable interrupts for high/low priority instead of per port.
- * 0 = disabled (default) 1 = enabled
- */
-#define PRIORITY_INTRS_STATUS_OFFSET    0x1FAA
-/* Enable/disable timestamping of packets. 0 = disabled (default) 1 = enabled */
-#define TIMESTAMP_PKTS_STATUS_OFFSET    0x1FAB
-#define TIMESTAMP_ARRAY_OFFSET          0xC200
 
 /* PRU1 DMEM
  * Multicast filter defines & offsets

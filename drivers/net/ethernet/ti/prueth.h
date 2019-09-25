@@ -21,7 +21,6 @@
 #include <linux/kthread.h>
 #include <linux/pruss.h>
 #include <linux/if_ether.h>
-#include <net/lredev.h>
 #ifdef CONFIG_PREEMPT_RT_FULL
 #include <linux/swork.h>
 #endif
@@ -511,8 +510,6 @@ struct prueth_emac {
 	/* emac mode irqs */
 	int rx_irq;
 	int tx_irq;
-	int rx_lp_irq;
-	int rx_hp_irq;
 
 	struct prueth_queue_desc __iomem *rx_queue_descs;
 	struct prueth_queue_desc __iomem *tx_queue_descs;
@@ -556,9 +553,6 @@ struct prueth_emac {
 	spinlock_t            ct_lock; /* serialize accesses to ct_ev_msg[] */
 	struct kthread_worker         *ct_kworker;
 	struct kthread_delayed_work    ct_work;
-
-	u32 rx_int_pacing_offset;
-	unsigned int rx_pacing_timeout;
 };
 
 struct prueth_mmap_port_cfg_basis {
@@ -610,11 +604,6 @@ struct prueth_mmap_ocmc_cfg {
 	u16 buffer_offset[PRUETH_PORT_MAX][NUM_QUEUES];
 };
 
-struct prueth_ndev_priority {
-	struct net_device *ndev;
-	int priority;
-};
-
 /**
  * struct prueth - PRUeth structure
  * @dev: device
@@ -636,10 +625,8 @@ struct prueth {
 	struct rproc *pru0, *pru1;
 	struct pruss_mem_region mem[PRUETH_MEM_MAX];
 	struct gen_pool *sram_pool;
-	struct prueth_ndev_priority *hp, *lp;
 
 	int fw_drop_untagged_vlan;
-	enum iec62439_3_tr_modes prp_tr_mode;
 	struct device_node *eth_node[PRUETH_NUM_MACS];
 	struct device_node *prueth_np;
 	struct prueth_emac *emac[PRUETH_NUM_MACS];
@@ -655,7 +642,6 @@ struct prueth {
 	unsigned int node_table_clear;
 	unsigned int node_table_clear_last_cmd;
 	unsigned int tbl_check_mask;
-	unsigned int priority_ts;
 	struct hrtimer tbl_check_timer;
 	struct prueth_mmap_port_cfg_basis mmap_port_cfg_basis[PRUETH_PORT_MAX];
 	struct prueth_mmap_sram_cfg mmap_sram_cfg;

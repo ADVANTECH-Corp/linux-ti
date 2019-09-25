@@ -7,23 +7,21 @@
 
 #include "icssg_prueth.h"
 
-static void icss_hs_get(struct prueth *prueth, int icssg,
-			int slice, struct icss_hs *hs)
+static void icss_hs_get(struct prueth *prueth, int slice, struct icss_hs *hs)
 {
 	void __iomem *va;
 
-	va = prueth->shram[icssg].va + slice * ICSS_HS_OFFSET_SLICE1;
+	va = prueth->shram.va + slice * ICSS_HS_OFFSET_SLICE1;
 	memcpy_fromio(hs, va, sizeof(*hs));
 }
 
 /* check if firmware is dead. returns error code in @err_code */
-bool icss_hs_is_fw_dead(struct prueth *prueth, int icssg,
-			int slice, u16 *err_code)
+bool icss_hs_is_fw_dead(struct prueth *prueth, int slice, u16 *err_code)
 {
-	struct icss_hs *hs = &prueth->hs[icssg][slice];
+	struct icss_hs *hs = &prueth->hs[slice];
 	u32 status;
 
-	icss_hs_get(prueth, icssg, slice, hs);
+	icss_hs_get(prueth, slice, hs);
 	status = le32_to_cpu(hs->fw_status);
 	/* lower 16 bits contain error code */
 	*err_code = status & 0xffff;
@@ -31,27 +29,27 @@ bool icss_hs_is_fw_dead(struct prueth *prueth, int icssg,
 }
 
 /* check if firmware is ready */
-bool icss_hs_is_fw_ready(struct prueth *prueth, int icssg, int slice)
+bool icss_hs_is_fw_ready(struct prueth *prueth, int slice)
 {
-	struct icss_hs *hs = &prueth->hs[icssg][slice];
+	struct icss_hs *hs = &prueth->hs[slice];
 	u32 status;
 
-	icss_hs_get(prueth, icssg, slice, hs);
+	icss_hs_get(prueth, slice, hs);
 	status = le32_to_cpu(hs->fw_status);
 	return (status == ICSS_HS_FW_READY);
 }
 
 /* send a command to firmware */
-int icss_hs_send_cmd(struct prueth *prueth, int icssg, int slice, u32 cmd,
+int icss_hs_send_cmd(struct prueth *prueth, int slice, u32 cmd,
 		     u32 *idata, u32 ilen)
 {
 	void __iomem *va, *vax;
-	struct icss_hs *hs = &prueth->hs[icssg][slice];
+	struct icss_hs *hs = &prueth->hs[slice];
 	int i;
 
-	va = prueth->shram[icssg].va + slice * ICSS_HS_OFFSET_SLICE1;
+	va = prueth->shram.va + slice * ICSS_HS_OFFSET_SLICE1;
 
-	icss_hs_get(prueth, icssg, slice, hs);
+	icss_hs_get(prueth, slice, hs);
 	if (ilen > le16_to_cpu(hs->ilen_max))
 		return -EINVAL;
 
@@ -73,14 +71,14 @@ int icss_hs_send_cmd(struct prueth *prueth, int icssg, int slice, u32 cmd,
 }
 
 /* check if command done */
-bool icss_hs_is_cmd_done(struct prueth *prueth, int icssg, int slice)
+bool icss_hs_is_cmd_done(struct prueth *prueth, int slice)
 {
-	struct icss_hs *hs = &prueth->hs[icssg][slice];
+	struct icss_hs *hs = &prueth->hs[slice];
 	u32 cmd;
 	int trys;
 
 	for (trys = 1; trys < 3; trys++) {
-		icss_hs_get(prueth, icssg, slice, hs);
+		icss_hs_get(prueth, slice, hs);
 		cmd = le32_to_cpu(hs->cmd);
 		if (cmd & ICSS_HS_CMD_DONE)
 			break;
@@ -88,8 +86,8 @@ bool icss_hs_is_cmd_done(struct prueth *prueth, int icssg, int slice)
 		/* If firmware didn't see the command yet, wait and retry */
 		if (!(cmd & ICSS_HS_CMD_BUSY)) {
 			dev_err(prueth->dev,
-				"slice %d:%d fw didn't see cmd 0x%x, try: %d\n",
-				icssg, slice, cmd, trys);
+				"slice %d fw didn't see cmd 0x%x, try: %d\n",
+				slice, cmd, trys);
 		}
 
 		udelay(5);
@@ -99,17 +97,17 @@ bool icss_hs_is_cmd_done(struct prueth *prueth, int icssg, int slice)
 }
 
 /* send command and check if command done */
-int icss_hs_send_cmd_wait_done(struct prueth *prueth, int icssg,
-			       int slice, u32 cmd, u32 *idata, u32 ilen)
+int icss_hs_send_cmd_wait_done(struct prueth *prueth, int slice,
+			       u32 cmd, u32 *idata, u32 ilen)
 {
 	int ret;
 
-	ret = icss_hs_send_cmd(prueth, icssg, slice, cmd, idata, ilen);
+	ret = icss_hs_send_cmd(prueth, slice, cmd, idata, ilen);
 	if (ret)
 		return ret;
 
 	udelay(5);	/* FW can take about 1uS */
-	if (icss_hs_is_cmd_done(prueth, icssg, slice))
+	if (icss_hs_is_cmd_done(prueth, slice))
 		return 0;
 
 	return -EIO;
@@ -120,17 +118,16 @@ int icss_hs_send_cmd_wait_done(struct prueth *prueth, int icssg,
  * @olen: maximum number of 32-bit output words to read.
  * returns number of result words read. negative on error.
  */
-int icss_hs_get_result(struct prueth *prueth, int icssg, int slice, u32 *odata,
-		       u32 olen)
+int icss_hs_get_result(struct prueth *prueth, int slice, u32 *odata, u32 olen)
 {
 	void __iomem *va;
-	struct icss_hs *hs = &prueth->hs[icssg][slice];
+	struct icss_hs *hs = &prueth->hs[slice];
 	int i;
 	u32 cmd, hsolen;
 
-	va = prueth->shram[icssg].va + slice * ICSS_HS_OFFSET_SLICE1;
+	va = prueth->shram.va + slice * ICSS_HS_OFFSET_SLICE1;
 
-	icss_hs_get(prueth, icssg, slice, hs);
+	icss_hs_get(prueth, slice, hs);
 
 	cmd = le32_to_cpu(hs->cmd);
 	if (!(cmd & ICSS_HS_CMD_DONE))

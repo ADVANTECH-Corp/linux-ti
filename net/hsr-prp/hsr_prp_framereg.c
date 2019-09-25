@@ -425,10 +425,6 @@ void hsr_prp_prune_nodes(unsigned long data)
 		}
 	}
 	rcu_read_unlock();
-
-	/* Restart timer */
-	mod_timer(&priv->prune_timer,
-		  jiffies + msecs_to_jiffies(HSR_PRP_PRUNE_PERIOD));
 }
 
 void *hsr_prp_get_next_node(struct hsr_prp_priv *priv, void *_pos,

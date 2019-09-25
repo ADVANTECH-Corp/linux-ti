@@ -31,11 +31,6 @@
 #define ICSS_SLICE0	0
 #define ICSS_SLICE1	1
 
-/* below used to support 2 icssg per pru port */
-#define ICSSG0		0
-#define ICSSG1		1
-#define NUM_ICSSG	2
-
 #define ICSS_FW_PRU	0
 #define ICSS_FW_RTU	1
 
@@ -124,10 +119,7 @@ struct prueth_emac {
 	struct napi_struct napi_tx;
 	struct napi_struct napi_rx;
 	u32 msg_enable;
-	int egress_icssg;
-	int egress_slice;
-	int ingress_icssg;
-	int ingress_slice;
+
 	int link;
 	int speed;
 	int duplex;
@@ -167,46 +159,37 @@ struct prueth_emac {
  */
 struct prueth {
 	struct device *dev;
-	struct pruss *pruss[NUM_ICSSG];
-	struct rproc *pru[NUM_ICSSG][PRUSS_NUM_PRUS];
-	struct rproc *rtu[NUM_ICSSG][PRUSS_NUM_PRUS];
-	struct pruss_mem_region shram[NUM_ICSSG];
+	struct pruss *pruss;
+	struct rproc *pru[PRUSS_NUM_PRUS];
+	struct rproc *rtu[PRUSS_NUM_PRUS];
+	struct pruss_mem_region shram;
 	struct gen_pool *sram_pool;
-	struct pruss_mem_region msmcram[NUM_ICSSG];
+	struct pruss_mem_region msmcram;
 
 	struct device_node *eth_node[PRUETH_NUM_MACS];
 	struct prueth_emac *emac[PRUETH_NUM_MACS];
 	struct net_device *registered_netdevs[PRUETH_NUM_MACS];
 	const struct prueth_private_data *fw_data;
-	struct icss_hs hs[NUM_ICSSG][PRUSS_NUM_PRUS];
-	struct regmap *miig_rt[NUM_ICSSG];
-	struct regmap *mii_rt[NUM_ICSSG];
-	int pruss_id[NUM_ICSSG];
-	/* For boards with dual icss per prueth port, this will be true */
-	bool dual_icssg;
+	struct icss_hs hs[PRUSS_NUM_PRUS];
+	int pruss_id;
+	struct regmap *miig_rt;
 };
 
-bool icss_hs_is_fw_dead(struct prueth *prueth, int icssg, int slice,
-			u16 *err_code);
-bool icss_hs_is_fw_ready(struct prueth *prueth, int icssg, int slice);
-int icss_hs_send_cmd(struct prueth *prueth, int icssg, int slice, u32 cmd,
+bool icss_hs_is_fw_dead(struct prueth *prueth, int slice, u16 *err_code);
+bool icss_hs_is_fw_ready(struct prueth *prueth, int slice);
+int icss_hs_send_cmd(struct prueth *prueth, int slice, u32 cmd,
 		     u32 *idata, u32 ilen);
-void icss_hs_cmd_cancel(struct prueth *prueth, int icssg, int slice);
-bool icss_hs_is_cmd_done(struct prueth *prueth, int icssg, int slice);
-int icss_hs_send_cmd_wait_done(struct prueth *prueth, int icssg, int slice,
+void icss_hs_cmd_cancel(struct prueth *prueth, int slice);
+bool icss_hs_is_cmd_done(struct prueth *prueth, int slice);
+int icss_hs_send_cmd_wait_done(struct prueth *prueth, int slice,
 			       u32 cmd, u32 *idata, u32 ilen);
-int icss_hs_get_result(struct prueth *prueth, int icssg, int slice,
-		       u32 *odata, u32 olen);
+int icss_hs_get_result(struct prueth *prueth, int slice, u32 *odata, u32 olen);
 
 /* Classifier helpers */
 void icssg_class_set_mac_addr(struct regmap *miig_rt, int slice, u8 *mac);
 void icssg_class_disable(struct regmap *miig_rt, int slice);
 void icssg_class_default(struct regmap *miig_rt, int slice);
 void icssg_class_promiscuous(struct regmap *miig_rt, int slice);
-void icssg_update_rgmii_cfg(struct regmap *miig_rt, bool gig_en, bool duplex,
-			    int slice);
-void icssg_update_mii_rt_cfg(struct regmap *mii_rt, int speed,
-			     int slice);
 
 /* get PRUSS SLICE number from prueth_emac */
 static inline int prueth_emac_slice(struct prueth_emac *emac)

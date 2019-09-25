@@ -807,10 +807,10 @@ static long iep_overflow_check(struct ptp_clock_info *ptp)
 
 	/* load the next pulse */
 
-	/* Get the updated time and counter again because the previous
-	 * read might occur right before the PPS match time.
+	/* Do we need to get the updated time and counter again?
+	 * Probably not. Just use the last one. ns to sec boundary
+	 * will be larger to compensate.
 	 */
-	ts = ns_to_timespec64(timecounter_read(&iep->tc));
 
 	/* Align cmp count to next sec boundary. If overflow check is
 	 * done every 50ms, the ns_to_sec  will be at least 950ms,

@@ -269,7 +269,4 @@
  */
 #define PRUETH_TX_PRP_EMAC_MODE	BIT(0)
 
-#define INTR_PAC_STATUS_OFFSET_PRU1             0x1FAE  // 1 byte | 0 : Interrupt Pacing disabled | 1 : Interrupt Pacing enabled
-#define INTR_PAC_STATUS_OFFSET_PRU0             0x1FAF  // 1 byte | 0 : Interrupt Pacing disabled | 1 : Interrupt Pacing enabled
-
 #endif /* __ICSS_SWITCH_H */
