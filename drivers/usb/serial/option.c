@@ -1950,6 +1950,10 @@ static const struct usb_device_id option_ids[] = {
 	{ USB_DEVICE(0x2C7C, 0x0306)},/* Quectel EG06/EP06/EM06*/
 	{ USB_DEVICE(0x2C7C, 0x0296)},/* Quectel BG96*/
 	{ USB_DEVICE(0x2C7C, 0x0435)},/* Quectel AG35*/
+	{ USB_DEVICE(0x2949, 0x8241)},/* Neoway N720*/
+	{ USB_DEVICE(0x2949, 0x8242)},/* Neoway N720*/
+	{ USB_DEVICE(0x2949, 0x8243)},/* Neoway N720*/
+	{ USB_DEVICE(0x2949, 0x8247)},/* Neoway N720*/
 #endif
 	{ } /* Terminating entry */
 };
