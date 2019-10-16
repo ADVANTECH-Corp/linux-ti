@@ -188,7 +188,7 @@ struct ti_sci_msg_req_set_device_state {
 	/* Additional hdr->flags options */
 #define MSG_FLAG_DEVICE_WAKE_ENABLED	TI_SCI_MSG_FLAG(8)
 #define MSG_FLAG_DEVICE_RESET_ISO	TI_SCI_MSG_FLAG(9)
-#define MSG_FLAG_DEVICE_EXCLUSIVE	0
+#define MSG_FLAG_DEVICE_EXCLUSIVE	TI_SCI_MSG_FLAG(10)
 	struct ti_sci_msg_hdr hdr;
 	u32 id;
 	u32 reserved;

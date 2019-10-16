@@ -956,11 +956,9 @@
 					reg = <0x0 0x2000>,
 					      <0x2000 0x2000>,
 					      <0x10000 0x3000>,
-					      <0x2e000 0x31c>,
-					      <0x30000 0x60>;
+					      <0x2e000 0x31c>;
 					reg-names = "dram0", "dram1",
-						    "shrdram2", "iep",
-						    "ecap";
+						    "shrdram2", "iep";
 				};
 
 				pruss_cfg: cfg@26000 {

@@ -32,18 +32,14 @@
 #define DP83867_CFG3		0x1e
 
 /* Extended Registers */
-/* TBD register name to be available in a new revision of the TRM */
-#define DP83867_FLD_THRESH	0x002E
 #define DP83867_CFG4            0x0031
 #define DP83867_RGMIICTL	0x0032
 #define DP83867_STRAP_STS1	0x006E
-#define DP83867_STRAP_STS2	0x006F
 #define DP83867_RGMIIDCTL	0x0086
 #define DP83867_IO_MUX_CFG	0x0170
 
 #define DP83867_SW_RESET	BIT(15)
 #define DP83867_SW_RESTART	BIT(14)
-#define STRAP_STS2_FLD_MASK	BIT(10)
 
 /* MICR Interrupt bits */
 #define MII_DP83867_MICR_AN_ERR_INT_EN		BIT(15)
@@ -227,20 +223,6 @@ static int dp83867_config_init(struct phy_device *phydev)
 		val = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4);
 		val &= ~BIT(7);
 		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_CFG4, val);
-	}
-
-	/* When the Phy is strapped to enable Fast Link Drop (FLD) feature,
-	 * the detect threshold value becomes 0x2 in bit 2:0 instead of 0x1
-	 * as in non strapped case. This causes the phy link to be unstable.
-	 * As a workaround, write a value of 0x1 in this bit field if
-	 * bit 10 of DP83867_STRAP_STS2 is set (enable FLD).
-	 */
-	val = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_STRAP_STS2);
-	if (val & STRAP_STS2_FLD_MASK) {
-		val = phy_read_mmd(phydev, DP83867_DEVADDR, DP83867_FLD_THRESH);
-		val &= ~0x7;
-		phy_write_mmd(phydev, DP83867_DEVADDR, DP83867_FLD_THRESH,
-			      val | 0x1);
 	}
 
 	if (phy_interface_is_rgmii(phydev)) {
