@@ -39,7 +39,8 @@
 		regulator-max-microvolt = <5000000>;
 		regulator-boot-on;
 	};
-
+	
+/*
 	lis3_reg: fixedregulator@1 {
 		compatible = "regulator-fixed";
 		regulator-name = "lis3_reg";
@@ -56,17 +57,17 @@
 		gpio = <&gpio1 29 0>;
 		startup-delay-us = <70000>;
 		enable-active-high;
+		//yanwei
 	};
-
-	vtt_fixed: fixedregulator@3 {
+*/
+	mmc_pwr: fixedregulator@3 {
 		compatible = "regulator-fixed";
-		regulator-name = "vtt";
-		regulator-min-microvolt = <1500000>;
-		regulator-max-microvolt = <1500000>;
-		gpio = <&gpio2 3 GPIO_ACTIVE_HIGH>;
+		regulator-name = "mmc_pwr";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 		regulator-boot-on;
-		enable-active-high;
+		//yanwei
 	};
 
 	backlight {
@@ -74,7 +75,7 @@
 		pwms = <&ecap2 0 50000 0>;
 		brightness-levels = <0 5 30 66 75 90 125 170 255>;
 		default-brightness-level = <8>;
-
+		status = "disabled";
 	};
 
 	panel {
@@ -676,7 +677,7 @@
 		};
 
 		vmmc_reg: regulator@12 {
-			regulator-min-microvolt = <1800000>;
+			regulator-min-microvolt = <3300000>;
 			regulator-max-microvolt = <3300000>;
 			regulator-always-on;
 		};
@@ -714,7 +715,7 @@
 
 &mmc1 {
 	status = "okay";
-	vmmc-supply = <&vmmc_reg>;
+	vmmc-supply = <&mmc_pwr>;//yanwei
 	bus-width = <4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc1_pins>;
@@ -735,7 +736,7 @@
 
 &mmc2 {
 	status = "okay";
-	vmmc-supply = <&vmmc_reg>;
+	vmmc-supply = <&mmc_pwr>;//yanwei
 	ti,non-removable;
 	bus-width = <8>;
 	cap-power-off-card;
@@ -750,7 +751,7 @@
 		&edma_xbar 13 0 2>;
 	dma-names = "tx", "rx";
 	status = "okay";
-	vmmc-supply = <&vmmc_reg>;
+	vmmc-supply = <&mmc_pwr>;
 	bus-width = <4>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&mmc3_pins>;
@@ -802,11 +803,11 @@
 };
 
 &lcdc {
-      status = "okay";
+      status = "disabled";
 };
 
 &sgx {
-	status = "okay";
+	status = "disabled";
 };
 
 &spi0 {
