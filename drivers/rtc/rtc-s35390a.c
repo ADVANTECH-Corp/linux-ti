@@ -522,6 +522,8 @@ static int s35390a_probe(struct i2c_client *client,
 		goto exit_dummy;
 	}
 
+	s35390a->rtc->uie_unsupported = 1;
+
 	if (status1 & S35390A_FLAG_INT2)
 		rtc_update_irq(s35390a->rtc, 1, RTC_AF);
 
