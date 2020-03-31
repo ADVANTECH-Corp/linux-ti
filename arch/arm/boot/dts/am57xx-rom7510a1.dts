@@ -26,6 +26,16 @@
 		sound1 = &hdmi;
 	};
 
+	ocp {
+		axi@0 {
+			status = "okay";
+		};
+
+		axi@1 {
+			status = "okay";
+		};
+	};
+
 	chosen {
 		stdout-path = &uart3;
 	};
@@ -280,13 +290,13 @@
 		compatible = "simple-audio-card";
 		simple-audio-card,name = "BeagleBoard-X15";
 		simple-audio-card,widgets =
-			"Line", "Line Out",
-			"Line", "Line In";
+			"Headphone", "Headphone Jack",
+			"Microphone", "Mic Jack";
 		simple-audio-card,routing =
-			"Line Out",	"LLOUT",
-			"Line Out",	"RLOUT",
-			"MIC2L",	"Line In",
-			"MIC2R",	"Line In";
+			"Headphone Jack", "HPLOUT",
+			"Headphone Jack", "HPROUT",
+			"MIC3R",	"Mic Jack",
+			"Mic Jack", "Mic Bias";
 		simple-audio-card,format = "dsp_b";
 		simple-audio-card,bitclock-master = <&sound0_master>;
 		simple-audio-card,frame-master = <&sound0_master>;
@@ -1199,12 +1209,11 @@
 };
 
 &pcie1_rc {
-	status = "ok";
-	gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+	status = "okay";
 };
 
-&pcie1_ep {
-	gpios = <&gpio2 8 GPIO_ACTIVE_LOW>;
+&pcie2_rc {
+        status = "okay";
 };
 
 &mcasp3 {
