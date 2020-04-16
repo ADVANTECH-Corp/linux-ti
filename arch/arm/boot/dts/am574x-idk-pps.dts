@@ -1,0 +1,117 @@
+/*
+ * Copyright (C) 2018 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+
+#include "am574x-idk.dts"
+
+&mac {
+	/* cptr pps1 generator and latch properties */
+	timers = <&timer16>, <&timer15>;
+	pinctrl-names = "pwm_off", "pwm_on", "ref_off", "ref_on",
+			"latch_on", "latch_off";
+	pinctrl-0 = <&pps1_timer16_pwm_off>;
+	pinctrl-1 = <&pps1_timer16_pwm_on>;
+	pinctrl-2 = <&pps1_timer16_pwm2_off>;
+	pinctrl-3 = <&pps1_timer16_pwm2_on>;
+	pinctrl-4 = <&pps1_timer15_latch_on>;
+	pinctrl-5 = <&pps1_timer15_latch_off>;
+
+	pps-enable-gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
+	ref-enable-gpios = <&gpio6 19 GPIO_ACTIVE_HIGH>;
+};
+
+&pruss2_eth {
+	pinctrl-names = "sync0_off", "sync0_on", "latch0_off", "latch0_on",
+			"sync1_off", "sync1_on";
+	pinctrl-0 = <&pr2_edc_sync0_off>;
+	pinctrl-1 = <&pr2_edc_sync0_on>;
+	pinctrl-2 = <&pr2_edc_latch0_off>;
+	pinctrl-3 = <&pr2_edc_latch0_on>;
+	pinctrl-4 = <&pr2_edc_sync1_off>;
+	pinctrl-5 = <&pr2_edc_sync1_on>;
+};
+
+&dra7_pmx_core {
+	pps1_timer16_pwm_on: pps1_timer16_pwm_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x36a0, PIN_OUTPUT | MUX_MODE10)
+		>;
+	};
+
+	pps1_timer16_pwm_off: pps1_timer16_pwm_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x36a0, PIN_OUTPUT | MUX_MODE15)
+		>;
+	};
+
+	pps1_timer16_pwm2_on: pps1_timer16_pwm2_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x3680, PIN_OUTPUT | MUX_MODE7)
+		>;
+	};
+
+	pps1_timer16_pwm2_off: pps1_timer16_pwm2_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x3680, PIN_OUTPUT | MUX_MODE15)
+		>;
+	};
+
+	pps1_timer15_latch_on: pps1_timer15_latch_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x3684, PIN_INPUT | MUX_MODE7)
+		>;
+	};
+
+	pps1_timer15_latch_off: pps1_timer15_latch_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x3684, PIN_INPUT | MUX_MODE15)
+		>;
+	};
+
+	pr2_edc_sync0_on: pr2_edc_sync0_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35f8, PIN_OUTPUT | MUX_MODE10)
+		>;
+	};
+
+	pr2_edc_sync0_off: pr2_edc_sync0_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35f8, PIN_OUTPUT | MUX_MODE15)
+		>;
+	};
+
+	pr2_edc_latch0_on: pr2_edc_latch0_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35f0, PIN_INPUT | MUX_MODE10)
+		>;
+	};
+
+	pr2_edc_latch0_off: pr2_edc_latch0_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35f0, PIN_INPUT | MUX_MODE15)
+		>;
+	};
+
+	pr2_edc_sync1_on: pr2_edc_sync1_on {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35fc, PIN_OUTPUT | MUX_MODE10)
+		>;
+	};
+
+	pr2_edc_sync1_off: pr2_edc_sync1_off {
+		pinctrl-single,pins = <
+			DRA7XX_CORE_IOPAD(0x35fc, PIN_OUTPUT | MUX_MODE15)
+		>;
+	};
+};
+
+&ptp_bc {
+	pps-sel0-gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
+	pps-sel1-gpios = <&gpio6 7 GPIO_ACTIVE_HIGH>;
+
+	status = "okay";
+};

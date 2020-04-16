@@ -1,0 +1,17 @@
+// SPDX-License-Identifier: GPL-2.0
+/**
+ * DT overlay for disabling crypto on am65x HS
+ *
+ * Copyright (C) 2019 Texas Instruments Incorporated - http://www.ti.com/
+ */
+
+/dts-v1/;
+/plugin/;
+
+&crypto {
+	status = "disabled";
+};
+
+&eip76d_trng {
+	status = "disabled";
+};

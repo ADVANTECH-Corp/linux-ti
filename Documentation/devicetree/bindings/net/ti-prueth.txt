@@ -1,0 +1,116 @@
+Texas Instruments PRUSS Ethernet MAC
+====================================
+
+Required properties:
+- compatible       : Should be one of the following,
+                        "ti,am3359-prueth" for AM335x SoCs
+                        "ti,am4376-prueth" for AM437x SoCs
+                        "ti,am57-prueth" for AM57xx SoCs
+                        "ti,k2g-prueth" for 66AK2G SoCs
+
+- prus             : list of pHandles to the PRU nodes
+- firmware-name	   : list of strings containing firmware path.
+- sram	           : pHandle to OCMC SRAM node
+- interrupt-parent : pHandle to the PRUSS INTC node
+- rx-queue-size    : Array of queue sizes in rx direction (Ingress)
+                     Format /bits/ 16 <q1 q2 q3 q4>
+                     Note that the queue size value (q1/q2/q3/q4)
+                     has to be non-zero
+
+    If no q size config exists for a particular port in
+    dts, the following defaults for that port will
+    be used.
+
+    EMAC/HSR/PRP Defaults:
+    host: rx-queue-size = /bits/ 16 <194 194 194 194>
+    mii0: tx-queue-size = /bits/ 16 <97 97 97 97>
+    mii1: tx-queue-size = /bits/ 16 <97 97 97 97>
+
+Optional properties:
+- interrupt-names  : If enabling packet priority based interrupts for HSR/PRP,
+		     should be "rx_red_hp", "rx_red_lp".
+- interrupts       : should contain an array of PRUSS system event
+                     numbers.
+
+Must contain children, one for each of the MAC ports.
+Children must be named ethernet-mii0 and ethernet-mii1.
+Either one or both children can be present. If only one
+child is present driver operates in single EMAC mode.
+
+For single mode operation with the 2nd PRU, you still need
+to provide both PRUs and firmware-names but the firmware-name
+for the first PRU can be NULL. See 2nd example.
+
+Required properties for children:
+- phy-handle       : See ethernet.txt file in the same directory.
+- phy-mode         : See ethernet.txt file in the same directory.
+- interrupt-names  : should be "rx", "tx", "emac_ptp_tx", and "hsrprp_ptp_tx".
+                     emac_ptp_tx and hsrprp_ptp_tx are optional.
+- interrupts       : should contain an array of PRUSS system event
+                     numbers used as the interrupt sources for Rx
+                     Tx and PTP Tx event packet timestamping respectively.
+- tx-queue-size    : Array of queue sizes in tx direction (Egress)
+                     Format /bits/ 16 <q1 q2 q3 q4>.
+                     Note that the queue size value (q1/q2/q3/q4) has
+                     to be non-zero.
+
+NOTE: When changing queue sizes, make sure that the sum of all queue
+sizes across ingress or host (defined by rx-queue-size or default values
+in the driver) and egress or mii0/1 ports (defined by port specific
+tx-queue-size or default values in the driver) must be less than or
+equal to 1552.
+
+Optional properties for children:
+- local-mac-address	: mac address for the port.
+
+Example (am572x-idk board, dual-emac):
+======================================
+	pruss2_eth {
+		compatible = "ti,am57-prueth";
+		prus = <&pru2_0>, <&pru2_1>;
+		firmware-name = "ti-pruss/am57xx-pru0-prueth-fw.elf",
+				"ti-pruss/am57xx-pru1-prueth-fw.elf";
+		sram = <&ocmcram1>;
+		interrupt-parent = <&pruss2_intc>;
+
+		pruss2_emac0: ethernet-mii0 {
+			phy-handle = <&pruss2_eth0_phy>;
+			phy-mode = "mii";
+			interrupts = <20>, <22>, <23>, <26>;
+			interrupt-names = "rx", "tx", "hsrprp_ptp_tx",
+					  "emac_ptp_tx";
+			/* Filled in by bootloader */
+			local-mac-address = [00 00 00 00 00 00];
+		};
+
+		pruss2_emac1: ethernet-mii1 {
+			phy-handle = <&pruss2_eth1_phy>;
+			phy-mode = "mii";
+			interrupts = <21>, <23>, <24>, <27>;
+			interrupt-names = "rx", "tx", "hsrprp_ptp_tx",
+					  "emac_ptp_tx";
+			/* Filled in by bootloader */
+			local-mac-address = [00 00 00 00 00 00];
+		};
+	};
+
+Example (am572x-idk board, single-emac):
+=======================================
+	pruss2_eth {
+		compatible = "ti,am57-prueth";
+		prus = <&pru2_0>, <&pru2_1>;
+		firmware-name = "",
+				"ti-pruss/am57xx-pru1-prueth-fw.elf";
+		sram = <&ocmcram1>;
+		interrupt-parent = <&pruss2_intc>;
+
+		pruss2_emac1: ethernet-mii1 {
+			phy-handle = <&pruss2_eth1_phy>;
+			phy-mode = "mii";
+			interrupts = <21>, <23>, <24>, <27>;
+			interrupt-names = "rx", "tx", "hsrprp_ptp_tx",
+					  "emac_ptp_tx";
+			/* Filled in by bootloader */
+			local-mac-address = [00 00 00 00 00 00];
+		};
+	};
