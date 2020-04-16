@@ -30,6 +30,7 @@ obj-$(CONFIG_BT_HCIUART_NOKIA)	+= hci_nokia.o
 
 btmrvl-y			:= btmrvl_main.o
 btmrvl-$(CONFIG_DEBUG_FS)	+= btmrvl_debugfs.o
+obj-$(CONFIG_MARVELL_BT_SD8897_ADVANTECH) += adv_bluetooth_sd8897/
 
 hci_uart-y				:= hci_ldisc.o
 hci_uart-$(CONFIG_BT_HCIUART_SERDEV)	+= hci_serdev.o

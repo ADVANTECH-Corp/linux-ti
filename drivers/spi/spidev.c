@@ -669,6 +669,9 @@ static const struct of_device_id spidev_dt_ids[] = {
 	{ .compatible = "lineartechnology,ltc2488" },
 	{ .compatible = "ge,achc" },
 	{ .compatible = "semtech,sx1301" },
+#if (defined(CONFIG_ARCH_AM57XX_ADVANTECH) || defined(CONFIG_ARCH_AM335X_ADVANTECH))
+	{ .compatible = "spidev"},
+#endif
 	{},
 };
 MODULE_DEVICE_TABLE(of, spidev_dt_ids);

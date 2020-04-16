@@ -28,4 +28,8 @@ struct pca953x_platform_data {
 	const char	*const *names;
 };
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+int adv_pca953x_get_rs485_value( unsigned off );
+#endif
+
 #endif /* _LINUX_PCA953X_H */

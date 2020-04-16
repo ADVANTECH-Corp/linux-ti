@@ -769,6 +769,9 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
 	return -EIO;
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static int omap_i2c_get_sda(struct i2c_adapter *adap);
+#endif
 
 /*
  * Prepare controller for a transaction and call omap_i2c_xfer_msg
@@ -795,6 +798,10 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 
 	if (omap->set_mpu_wkup_lat != NULL)
 		omap->set_mpu_wkup_lat(omap->dev, omap->latency);
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	usleep_range(500, 600);
+#endif
 
 	for (i = 0; i < num; i++) {
 		r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));

@@ -752,6 +752,109 @@ out:
 	return ret;
 }
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static int adv_gpio_init(struct pca953x_chip *chip)
+{
+        unsigned int dir,val,exp, dir_len, val_len,exp_len;
+        int i;
+        const __be32 *direction;
+        const __be32 *value;
+        const __be32 *export_flag;
+        struct device_node *np;
+
+        np = of_find_compatible_node(NULL,NULL,"nxp,pca9538");
+        if (np == NULL) {
+                np = of_find_compatible_node(NULL,NULL,"nxp,pca9555");
+                if (np == NULL) {
+                        pr_err("Unable to find node\n");
+                        return -ENOENT;
+                }
+        }
+
+        if (np) {
+                direction = of_get_property(np, "default_direction", &dir_len);
+                if (direction == NULL)
+                        return -ENOENT;
+                value = of_get_property(np, "default_value", &val_len);
+                if (value == NULL)
+                        return -ENOENT;
+                export_flag = of_get_property(np, "export_flag", &exp_len);
+                if (value == NULL)
+                        return -ENOENT;
+
+                dir_len = dir_len / sizeof(int);
+                val_len = val_len / sizeof(int);
+                exp_len = exp_len / sizeof(int);
+                if(dir_len != val_len)
+                        return -ENOENT;
+                if(exp_len != val_len)
+                        return -ENOENT;
+
+                for (i = 0; i < dir_len; i++) {
+                        exp = be32_to_cpu(export_flag[i]);
+                        dir = be32_to_cpu(direction[i]);
+                        val = be32_to_cpu(value[i]);
+
+                        gpio_request(chip->gpio_chip.base + i, "PCA-953XGPIO");
+                        if(dir == 0){
+                                gpio_direction_input(chip->gpio_chip.base + i);
+                        }else{
+                                gpio_direction_output(chip->gpio_chip.base + i, val);
+                        }
+                        if(exp == 1)
+                                gpio_export(chip->gpio_chip.base + i, 1);
+                }
+        }
+        return 0;
+}
+
+struct pca953x_chip *ext_chip;
+int adv_pca953x_get_rs485_value( unsigned off )
+{
+        u32 reg_val;
+        int dir,ret;
+
+        mutex_lock(&ext_chip->i2c_lock);
+        ret = pca953x_read_single(ext_chip, ext_chip->regs->direction, &reg_val, off);
+        mutex_unlock(&ext_chip->i2c_lock);
+        if (ret < 0)
+                return ret;
+
+        dir = !!(reg_val & (1u << (off % BANK_SZ)));
+
+        if(dir){
+                mutex_lock(&ext_chip->i2c_lock);
+                ret = pca953x_read_single(ext_chip, ext_chip->regs->input, &reg_val, off);
+                mutex_unlock(&ext_chip->i2c_lock);
+                if (ret < 0) {
+                /* NOTE:  diagnostic already emitted; that's all we should
+                 * do unless gpio_*_value_cansleep() calls become different
+                 * from their nonsleeping siblings (and report faults).
+                 */
+                return 0;
+                }
+
+                ret = (reg_val & (1u << (off % BANK_SZ))) ? 1 : 0;
+        }
+        else{
+                mutex_lock(&ext_chip->i2c_lock);
+                ret = pca953x_read_single(ext_chip, ext_chip->regs->output, &reg_val, off);
+                mutex_unlock(&ext_chip->i2c_lock);
+                if (ret < 0) {
+                /* NOTE:  diagnostic already emitted; that's all we should
+                 * do unless gpio_*_value_cansleep() calls become different
+                 * from their nonsleeping siblings (and report faults).
+                 */
+                return 0;
+                }
+
+                ret = (reg_val & (1u << (off % BANK_SZ))) ? 1 : 0;
+        }
+        return ret;
+}
+
+#endif
+
 static const struct of_device_id pca953x_dt_ids[];
 
 static int pca953x_probe(struct i2c_client *client,
@@ -890,6 +993,11 @@ static int pca953x_probe(struct i2c_client *client,
 		if (ret < 0)
 			dev_warn(&client->dev, "setup failed, %d\n", ret);
 	}
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	adv_gpio_init(chip);
+	ext_chip = chip;
+#endif
 
 	i2c_set_clientdata(client, chip);
 	return 0;
