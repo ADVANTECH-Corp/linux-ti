@@ -19,8 +19,8 @@
 
 	aliases {
 		rtc0 = &rtc;
-		display0 = &lcd0;
-		display1 = &hdmi0;
+		display0 = &hdmi0;
+		display1 = &lcd0;
 
 		sound0 = &sound0;
 		sound1 = &hdmi;
