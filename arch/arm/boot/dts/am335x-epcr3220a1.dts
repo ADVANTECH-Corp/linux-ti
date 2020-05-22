@@ -533,6 +533,7 @@
 
 	adv-wdt-i2c@29 {
 		compatible = "adv-wdt-i2c";
+		status = "okay";
 		reg = <0x29>;
 		wdt-ping = <&gpio2 4 GPIO_ACTIVE_HIGH>;
 		wdt-en = <&gpio2 5 GPIO_ACTIVE_HIGH>;
