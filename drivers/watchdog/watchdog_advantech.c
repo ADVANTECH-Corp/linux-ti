@@ -525,6 +525,15 @@ static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 	clear_bit(ADV_WDT_EXPECT_CLOSE, &adv_wdt.status);
 	clear_bit(ADV_WDT_STATUS_OPEN, &adv_wdt.status);
 	clear_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status);
+
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	int i;
+	for(i=0; i<3; i++ ){
+		mdelay(1100);
+		adv_wdt_i2c_set_timeout(client, 1);
+	}
+#endif
+
 }
 
 static const struct i2c_device_id adv_wdt_i2c_id[] = {
