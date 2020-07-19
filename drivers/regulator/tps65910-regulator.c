@@ -26,6 +26,10 @@
 #include <linux/mfd/tps65910.h>
 #include <linux/regulator/of_regulator.h>
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#include <asm/system_misc.h>
+#endif
+
 #define TPS65910_SUPPLY_STATE_ENABLED	0x1
 #define EXT_SLEEP_CONTROL (TPS65910_SLEEP_CONTROL_EXT_INPUT_EN1 |	\
 			TPS65910_SLEEP_CONTROL_EXT_INPUT_EN2 |		\
@@ -1073,6 +1077,22 @@ static inline struct tps65910_board *tps65910_parse_dt_reg_data(
 }
 #endif
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static struct tps65910_reg *pmic_bak;
+void tps65910_restart(enum reboot_mode reboot_mode, const char *cmd)
+{
+	unsigned int data = 0;
+
+	tps65910_reg_read(pmic_bak->mfd, TPS65910_DEVCTRL, &data);
+	data |= 0x02;
+	tps65910_reg_write(pmic_bak->mfd, TPS65910_DEVCTRL, data);
+	msleep(1000);
+	data &= ~0x02;
+	data |= 0x08;
+	tps65910_reg_write(pmic_bak->mfd, TPS65910_DEVCTRL, data);
+}
+#endif
+
 static int tps65910_probe(struct platform_device *pdev)
 {
 	struct tps65910 *tps65910 = dev_get_drvdata(pdev->dev.parent);
@@ -1217,6 +1237,10 @@ static int tps65910_probe(struct platform_device *pdev)
 		/* Save regulator for cleanup */
 		pmic->rdev[i] = rdev;
 	}
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	pmic_bak = pmic;
+	arm_pm_restart = tps65910_restart;
+#endif
 	return 0;
 }
 
