@@ -84,9 +84,9 @@ static struct miscdevice adv_wdt_miscdev;
 
 static bool nowayout = WATCHDOG_NOWAYOUT;
 
-//#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-//static void *original_arm_pm_restart;
-//#endif
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+static void *original_arm_pm_restart;
+#endif
 
 module_param(nowayout, bool, 0);
 
@@ -487,10 +487,10 @@ static int adv_wdt_i2c_probe(struct i2c_client *client, const struct i2c_device_
 		goto fail;
 	}
 
-//#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	//original_arm_pm_restart = arm_pm_restart;
-	//arm_pm_restart=NULL;
-//#endif
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	original_arm_pm_restart = arm_pm_restart;
+	arm_pm_restart=NULL;
+#endif
 
 	return 0;
 
@@ -515,9 +515,9 @@ static int __exit adv_wdt_i2c_remove(struct i2c_client *client)
 
 	adv_wdt_miscdev.parent = NULL;
 
-//#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	//arm_pm_restart = original_arm_pm_restart;
-//#endif
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	arm_pm_restart = original_arm_pm_restart;
+#endif
 
 	return 0;
 }
@@ -554,10 +554,30 @@ static int adv_wdt_i2c_suspend(struct device *dev)
 
 static void adv_wdt_i2c_shutdown(struct i2c_client *client)
 {
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+        char temp_gov[20];
+	int ret,times = 0;
+#endif
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status)) {
 		/* set timeout to 1 sec here and expect WDT_EN in restart handler */
 		gpio_set_value(gpio_wdt_en, adv_wdt.wdt_en_off);
-		//adv_wdt_i2c_set_timeout(client, 1);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_get_scaling_governor(temp_gov);
+		adv_set_scaling_governor("performance");
+		msleep(100);
+
+		ret = adv_wdt_i2c_set_timeout(client, 1);
+		while(ret){
+			msleep(1000);
+			adv_wdt_i2c_set_timeout(client, 1);
+			times++;
+			if(times == 3)
+				break;
+		}
+		adv_set_scaling_governor(temp_gov);
+#else
+		adv_wdt_i2c_set_timeout(client, 1);
+#endif
 		adv_wdt_ping();
 
 		dev_crit(adv_wdt_miscdev.parent,
