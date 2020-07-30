@@ -29,6 +29,9 @@
 #endif
 */
 #include <asm/system_misc.h>
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+#include <linux/cpufreq.h>
+#endif
 
 #define ADV_WDT_WCR		0x00		/* Control Register */
 #define ADV_WDT_WCR_WT		(0xFF << 8)	/* -> Watchdog Timeout Field */
@@ -255,6 +258,9 @@ static long adv_wdt_ioctl(struct file *file, unsigned int cmd,
 	void __user *argp = (void __user *)arg;
 	int __user *p = argp;
 	unsigned int new_value = 0;
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+        char temp_gov[20];
+#endif
 //	u16 val;
 
 	switch (cmd) {
@@ -285,17 +291,41 @@ static long adv_wdt_ioctl(struct file *file, unsigned int cmd,
 			return -EINVAL;
 		}
 		adv_wdt.timeout = new_value;
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_get_scaling_governor(temp_gov);
+		adv_set_scaling_governor("performance");
+		msleep(100);
+#endif
 		adv_wdt_i2c_set_timeout(adv_client, adv_wdt.timeout);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_set_scaling_governor(temp_gov);
+#endif
 		adv_wdt_ping();
 	
 		/* Fallthrough to return current value */
 	case WDIOC_GETTIMEOUT:
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_get_scaling_governor(temp_gov);
+		adv_set_scaling_governor("performance");
+		msleep(100);
+#endif
 		adv_wdt_i2c_read_timeout(adv_client, &adv_wdt.timeout);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_set_scaling_governor(temp_gov);
+#endif
 		//printk("WDIOC_GETTIMEOUT:%x\n", adv_wdt.timeout);
 		return put_user(adv_wdt.timeout & 0xFFFF, p);
 
 	case WDIOC_GETTIMELEFT:
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_get_scaling_governor(temp_gov);
+		adv_set_scaling_governor("performance");
+		msleep(100);
+#endif
 		adv_wdt_i2c_read_remain_time(adv_client, &adv_wdt.remain_time);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_set_scaling_governor(temp_gov);
+#endif
 		//printk("WDIOC_GETTIMELEFT:%x\n", adv_wdt.remain_time);
 		return put_user(adv_wdt.remain_time & 0xFFFF, p);
 	
@@ -494,10 +524,21 @@ static int __exit adv_wdt_i2c_remove(struct i2c_client *client)
 
 static int adv_wdt_i2c_resume(struct device *dev)
 {
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+        char temp_gov[20];
+#endif
 	if (test_bit(ADV_WDT_STATUS_STARTED, &adv_wdt.status))
 	{
 		gpio_set_value(gpio_wdt_en, !adv_wdt.wdt_en_off);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_get_scaling_governor(temp_gov);
+		adv_set_scaling_governor("performance");
+		msleep(100);
+#endif
 		adv_wdt_i2c_set_timeout(adv_client, adv_wdt.timeout);
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+		adv_set_scaling_governor(temp_gov);
+#endif
 		adv_wdt_ping();
 	}
 	return 0;

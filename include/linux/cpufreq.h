@@ -34,6 +34,11 @@
 /* Print length for names. Extra 1 space for accommodating '\n' in prints */
 #define CPUFREQ_NAME_PLEN		(CPUFREQ_NAME_LEN + 1)
 
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+ssize_t adv_get_scaling_governor(char *buf);
+void adv_set_scaling_governor(const char *buf);
+#endif
+
 struct cpufreq_governor;
 
 enum cpufreq_table_sorting {
