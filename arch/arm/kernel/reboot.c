@@ -141,6 +141,9 @@ void machine_restart(char *cmd)
 	local_irq_disable();
 	smp_send_stop();
 
+	if((cmd == NULL) || (strcmp(cmd, "backup") != 0))
+		arm_pm_restart = NULL;
+
 	if (arm_pm_restart)
 		arm_pm_restart(reboot_mode, cmd);
 	else
