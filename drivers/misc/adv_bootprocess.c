@@ -24,7 +24,6 @@ static struct delayed_work adv_delay_work;
 
 static void adv_delay_work_handler(struct work_struct *work)
 {
-	printk("[ADV] time get\n");
 	if(timer_flag == 0)
 	{
 		kernel_restart("backup");
