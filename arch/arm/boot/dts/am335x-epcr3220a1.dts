@@ -21,6 +21,10 @@
 	model = "EPC-R3220 A101-1";
 	compatible = "ti,am335x-evmsk", "ti,am33xx";
 
+	chosen {
+		gpio-use-original-number;
+	};
+
 	cpus {
 		cpu@0 {
 			cpu0-supply = <&vdd1_reg>;

@@ -18,6 +18,7 @@
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
 /* Rename gpio nodes in /sys/class/gpio */
 static int gpio_count = 0;
+static char gpio_number_flag = 0;
 #endif
 
 struct gpiod_data {
@@ -621,11 +622,21 @@ int gpiod_export(struct gpio_desc *desc, bool direction_may_change)
 		ioname = chip->names[offset];
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
-        dev = device_create_with_groups(&gpio_class, &gdev->dev,
-                                        MKDEV(0, 0), data, gpio_groups,
-                                        ioname ? ioname : "GPIO-%u",
-                                        gpio_count);
-        gpio_count++;
+	if(gpio_number_flag == 0)
+	{
+		dev = device_create_with_groups(&gpio_class, &gdev->dev,
+						MKDEV(0, 0), data, gpio_groups,
+						ioname ? ioname : "GPIO-%u",
+						gpio_count);
+		gpio_count++;
+	}
+	else
+	{
+		dev = device_create_with_groups(&gpio_class, &gdev->dev,
+						MKDEV(0, 0), data, gpio_groups,
+						ioname ? ioname : "gpio%u",
+						desc_to_gpio(desc));
+	}
 #else
 	dev = device_create_with_groups(&gpio_class, &gdev->dev,
 					MKDEV(0, 0), data, gpio_groups,
@@ -721,7 +732,8 @@ void gpiod_unexport(struct gpio_desc *desc)
 	clear_bit(FLAG_EXPORT, &desc->flags);
 
 #ifdef CONFIG_ARCH_AM335X_ADVANTECH
-        gpio_count--;
+	if(gpio_number_flag == 0)
+		gpio_count--;
 #endif
 
 	device_unregister(dev);
@@ -812,6 +824,17 @@ static int __init gpiolib_sysfs_init(void)
 	int		status;
 	unsigned long	flags;
 	struct gpio_device *gdev;
+#ifdef CONFIG_ARCH_AM335X_ADVANTECH
+	struct device_node *np;
+
+	np = of_find_node_by_path("/chosen");
+	if (np) {
+		if (of_property_read_bool(np, "gpio-use-original-number")) 
+			gpio_number_flag = 1;
+		else
+			gpio_number_flag = 0;
+	}
+#endif
 
 	status = class_register(&gpio_class);
 	if (status < 0)
