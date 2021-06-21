@@ -31,10 +31,6 @@
 #include <linux/tick.h>
 #include <trace/events/power.h>
 
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-struct cpufreq_policy *adv_policy;
-#endif
-
 static LIST_HEAD(cpufreq_policy_list);
 
 static inline bool policy_is_inactive(struct cpufreq_policy *policy)
@@ -768,21 +764,6 @@ static ssize_t store_scaling_governor(struct cpufreq_policy *policy,
 	return ret ? ret : count;
 }
 
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-ssize_t adv_get_scaling_governor(char *buf)
-{
-        int ret;
-
-        ret = show_scaling_governor(adv_policy, buf);
-        return ret;
-}
-
-void adv_set_scaling_governor(const char *buf)
-{
-	store_scaling_governor(adv_policy, buf, strlen(buf) + 1);
-}
-#endif
-
 /**
  * show_scaling_driver - show the cpufreq driver currently loaded
  */
@@ -1062,10 +1043,6 @@ static int cpufreq_init_policy(struct cpufreq_policy *policy)
 			cpufreq_parse_governor(gov->name, &new_policy.policy,
 					       NULL);
 	}
-
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	adv_policy = policy;
-#endif
 
 	/* set default policy */
 	return cpufreq_set_policy(policy, &new_policy);
@@ -2067,10 +2044,6 @@ static int cpufreq_init_governor(struct cpufreq_policy *policy)
 			return ret;
 		}
 	}
-
-#ifdef CONFIG_ARCH_AM335X_ADVANTECH
-	adv_policy = policy;
-#endif
 
 	return 0;
 }
