@@ -200,6 +200,7 @@ static inline void adv_wdt_ping(void)
 	/* watchdog counter refresh input. Both edge trigger */
 	adv_wdt.wdt_ping_status= !adv_wdt.wdt_ping_status;
 	gpio_set_value(gpio_wdt_ping, adv_wdt.wdt_ping_status);
+	msleep(60);
 	//printk("adv_wdt_ping:%x\n", adv_wdt.wdt_ping_status);
 	//printk("wdt_en_ping:%x\n", gpio_get_value(gpio_wdt_en));
 }
