@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/media/i2c/ti,ds90ub953.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Texas Instruments DS90UB953 FPD-Link 3 Serializer
+
+maintainers:
+  - Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+
+description: |-
+  The TI DS90UB953 is an FPD-Link 3 video serializer for MIPI CSI-2.
+
+properties:
+  compatible:
+    enum:
+      - ti,ds90ub953-q1
+
+  '#gpio-cells':
+    const: 2
+
+  gpio-controller: true
+
+  i2c-1_8v:
+    type: boolean
+    description:
+      Use 1.8V for I2C instead of the default 3.3V
+
+  ports:
+    $ref: /schemas/graph.yaml#/properties/ports
+
+    properties:
+      port@0:
+        $ref: /schemas/graph.yaml#/$defs/port-base
+        description: CSI-2 Input
+
+        properties:
+          endpoint:
+            $ref: /schemas/media/video-interfaces.yaml#
+
+            properties:
+              data-lanes:
+                $ref: /schemas/types.yaml#/definitions/uint32-array
+                minItems: 1
+                maxItems: 4
+                uniqueItems: true
+                items:
+                  maximum: 4
+
+              clock-noncontinuous:
+                type: boolean
+                description:
+                  Allow MIPI CSI-2 non-continuous clock mode.
+
+          required:
+            - data-lanes
+            - clock-noncontinuous
+
+      port@1:
+        $ref: /schemas/graph.yaml#/$defs/port-base
+        description: FPD-Link 3 Output
+
+        properties:
+          endpoint:
+            $ref: /schemas/media/video-interfaces.yaml#
+
+required:
+  - compatible
+  - '#gpio-cells'
+  - gpio-controller
+  - ports
+
+additionalProperties: false
+
+examples:
+  - |
+      serializer: remote-chip {
+        compatible = "ti,ds90ub953-q1";
+
+        gpio-controller;
+        #gpio-cells = <2>;
+
+        ports {
+          #address-cells = <1>;
+          #size-cells = <0>;
+
+          port@0 {
+            reg = <0>;
+          };
+
+          port@1 {
+            reg = <1>;
+          };
+        };
+      };
+...
