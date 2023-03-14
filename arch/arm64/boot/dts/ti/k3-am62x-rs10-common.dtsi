@@ -10,8 +10,6 @@
 		serial2 = &main_uart0;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
-		mmc2 = &sdhci2;
-		spi0 = &ospi0;
 		usb0 = &usb0;
 		usb1 = &usb1;
 		ethernet0 = &cpsw_port1;
@@ -124,6 +122,9 @@
 		regulator-boot-on;
 		enable-active-high;
 		vin-supply = <&vcc_3v3_sys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&vdd_mmc_pins_default>;
+		gpio = <&main_gpio0 32 GPIO_ACTIVE_HIGH>;
 	};
 
 	vdd_sd_dv: regulator-4 {
@@ -182,7 +183,6 @@
 			AM62X_IOPAD(0x0094, PIN_OUTPUT, 7) /* (N20) GPMC0_BE1n */
 			AM62X_IOPAD(0x00ac, PIN_OUTPUT_PULLDOWN, 7) /* (L21) GPMC0_CSn1 */
 			AM62X_IOPAD(0x00b4, PIN_OUTPUT, 7) /* (K24) GPMC0_CSn3 */
-			AM62X_IOPAD(0x0084, PIN_OUTPUT, 7) /* (L23) GPMC0_ADVn_ALE */
 			AM62X_IOPAD(0x0088, PIN_OUTPUT, 7) /* (L24) GPMC0_OEn_REn */
 			AM62X_IOPAD(0x008c, PIN_OUTPUT, 7) /* (L25) GPMC0_WEn */
 			AM62X_IOPAD(0x0090, PIN_OUTPUT, 7) /* (M24) GPMC0_BE0n_CLE */
@@ -258,7 +258,7 @@
 	
 	usr_led_pins_default: usr-led-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x00b0, PIN_OUTPUT, 7) /* (K22) GPMC0_CSn2.GPIO0_43 */
+			AM62X_IOPAD(0x0b0, PIN_OUTPUT, 7) /* (K22) GPMC0_CSn2.GPIO0_43 */
 		>;
 	};
 
@@ -303,9 +303,15 @@
 		>;
 	};
 	
+	vdd_mmc_pins_default: vdd-mmc-pins-default {
+		pinctrl-single,pins = <
+				AM62X_IOPAD(0x084, PIN_OUTPUT, 7) /* (L23) GPMC0_ADVn_ALE.GPIO0_32 */
+		>;
+	};
+
 	vdd_sd_dv_pins_default: vdd-sd-dv-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x007c, PIN_OUTPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
+			AM62X_IOPAD(0x07c, PIN_OUTPUT, 7) /* (P25) GPMC0_CLK.GPIO0_31 */
 		>;
 	};
 
@@ -337,12 +343,13 @@
 };
 
 &main_uart1 {
-	/* Main UART1 is used by TIFS firmware */
-	status = "reserved";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart1_pins_default>;
 };
 
 &main_uart2 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart2_pins_default>;
 };
 
 &main_uart3 {
@@ -404,6 +411,10 @@
 	pinctrl-0 = <&main_mmc1_pins_default>;
 	ti,driver-strength-ohm = <50>;
 	disable-wp;
+};
+
+&sdhci2 {
+	status = "disabled";
 };
 
 &usbss0 {
