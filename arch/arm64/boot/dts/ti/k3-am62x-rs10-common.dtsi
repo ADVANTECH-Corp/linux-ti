@@ -315,15 +315,15 @@
 		>;
 	};
 
-	main_usb2_pins_default: main-usb2-pins-default {
+	main_usb1_pins_default: main-usb1-pins-default {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x0258, PIN_OUTPUT, 0) /* (F18) USB1_DRVVBUS */
 		>;
 	};
 	
-	main_usb1_pins_default: main-usb1-pins-default {
+	main_usb0_pins_default: main-usb0-pins-default {
 		pinctrl-single,pins = <
-			AM62X_IOPAD(0x0254, PIN_INPUT, 0) /* (C20) USB0_DRVVBUS */
+			AM62X_IOPAD(0x0254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */
 		>;
 	};
 };
@@ -386,6 +386,12 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c1_pins_default>;
 	clock-frequency = <100000>;
+
+	s35390a: s35390a@30 {
+		compatible = "sii,s35390a";
+		reg = <0x30>;
+		status = "okay";
+	};
 };
 
 &main_i2c2 {
@@ -428,13 +434,13 @@
 &usb0 {
 	dr_mode = "host";
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb1_pins_default>;
+	pinctrl-0 = <&main_usb0_pins_default>;
 };
 
 &usb1 {
 	dr_mode = "host";
 	pinctrl-names = "default";
-	pinctrl-0 = <&main_usb2_pins_default>;
+	pinctrl-0 = <&main_usb1_pins_default>;
 };
 
 &cpsw3g {
