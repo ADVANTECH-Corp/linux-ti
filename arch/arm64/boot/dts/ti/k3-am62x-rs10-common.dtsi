@@ -7,7 +7,9 @@
 
 / {
 	aliases {
+	    serial1 = &mcu_uart0;
 		serial2 = &main_uart0;
+		serial3 = &main_uart1;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 		usb0 = &usb0;
@@ -198,20 +200,12 @@
 		>;
 	};
 	
-	main_uart1_pins_default: main-uart0-pins-default {
+	main_uart1_pins_default: main-uart1-pins-default {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x01ac, PIN_INPUT, 2) /* (E19) MCASP0_AFSR.UART1_RXD */
 			AM62X_IOPAD(0x01b0, PIN_OUTPUT, 2) /* (A20) MCASP0_ACLKR.UART1_TXD */
 			AM62X_IOPAD(0x0194, PIN_INPUT, 2) /* (B19) MCASP0_AXR3.UART1_CTSn */
 			AM62X_IOPAD(0x0198, PIN_OUTPUT, 2) /* (A19) MCASP0_AXR2.UART1_RTSn */
-		>;
-	};
-	main_uart2_pins_default: main-uart0-pins-default {
-		pinctrl-single,pins = <
-			AM62X_IOPAD(0x01d8, PIN_INPUT, 1) /* (C15) MCAN0_TX.UART5_RXD */
-			AM62X_IOPAD(0x01dc, PIN_OUTPUT, 1) /* (E15) MCAN0_RX.UART5_TXD */
-			AM62X_IOPAD(0x0008, PIN_INPUT, 5) /* (J24) OSPI0_DQS.UART5_CTSn */
-			AM62X_IOPAD(0x0004, PIN_OUTPUT, 5) /* (G25) OSPI0_LBCLKO.UART5_RTSn */
 		>;
 	};
 
@@ -328,13 +322,25 @@
 	};
 };
 
+&mcu_pmx0 {
+	mcu_uart0_pins_default: mcu-uart0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x001c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
+			AM62X_MCU_IOPAD(0x0020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
+			AM62X_MCU_IOPAD(0x0014, PIN_INPUT, 0) /* (B5) MCU_UART0_RXD */
+			AM62X_MCU_IOPAD(0x0018, PIN_OUTPUT, 0) /* (A5) MCU_UART0_TXD */
+		>;
+	};
+};
+
 &wkup_uart0 {
 	/* WKUP UART0 is used by DM firmware */
 	status = "reserved";
 };
 
 &mcu_uart0 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
 };
 
 &main_uart0 {
@@ -348,8 +354,7 @@
 };
 
 &main_uart2 {
-	pinctrl-names = "default";
-	pinctrl-0 = <&main_uart2_pins_default>;
+	status = "disabled";
 };
 
 &main_uart3 {
