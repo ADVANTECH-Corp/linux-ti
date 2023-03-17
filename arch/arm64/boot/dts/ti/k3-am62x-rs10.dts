@@ -17,6 +17,20 @@
 	compatible =  "ti,am625-sk", "ti,am625";
 	model = "Advantech AM62x RS10";
 
+    board {
+        compatible = "proc-board";
+        board-type = "EBC-RS10 A1";
+        board-cpu = "TI am62x";
+    };
+
+    misc-adv-gpio {
+        compatible = "misc-adv-gpio";
+        status = "okay";
+        minipcie-pwr-gpio = <&main_gpio0 40 GPIO_ACTIVE_HIGH>;
+        minipcie-reset-gpio = <&main_gpio0 35 GPIO_ACTIVE_LOW>;
+        timing-interval = <300>;
+    };
+
 	opp-table {
 		/* Add 1.4GHz OPP for am625-sk board. Requires VDD_CORE to be at 0.85V */
 		opp-1400000000 {
