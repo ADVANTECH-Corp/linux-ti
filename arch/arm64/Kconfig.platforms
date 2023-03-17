@@ -115,6 +115,11 @@ config ARCH_K3
 	  This enables support for Texas Instruments' K3 multicore SoC
 	  architecture.
 
+config ARCH_ADVANTECH
+        bool "Advantech board"
+        help
+          This enables support for Advantech Board.
+
 config ARCH_LAYERSCAPE
 	bool "ARMv8 based Freescale Layerscape SoC family"
 	select EDAC_SUPPORT
