@@ -7,7 +7,9 @@
 
 / {
 	aliases {
+	    serial1 = &mcu_uart0;
 		serial2 = &main_uart0;
+		serial3 = &main_uart1;
 		mmc0 = &sdhci0;
 		mmc1 = &sdhci1;
 		mmc2 = &sdhci2;
@@ -294,6 +296,15 @@
 			AM62X_IOPAD(0x11c, PIN_INPUT, 0) /* (#N/A) MMC2_CLKB */
 		>;
 	};
+		
+	main_uart1_pins_default: main-uart1-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x01ac, PIN_INPUT, 2) /* (E19) MCASP0_AFSR.UART1_RXD */
+			AM62X_IOPAD(0x01b0, PIN_OUTPUT, 2) /* (A20) MCASP0_ACLKR.UART1_TXD */
+			AM62X_IOPAD(0x0194, PIN_INPUT, 2) /* (B19) MCASP0_AXR3.UART1_CTSn */
+			AM62X_IOPAD(0x0198, PIN_OUTPUT, 2) /* (A19) MCASP0_AXR2.UART1_RTSn */
+		>;
+	};
 
 	main_wlirq_pins_default: main-wlirq-pins-default {
 		pinctrl-single,pins = <
@@ -425,13 +436,27 @@
 	};
 };
 
+&mcu_pmx0 {
+	mcu_uart0_pins_default: mcu-uart0-pins-default {
+		pinctrl-single,pins = <
+			AM62X_MCU_IOPAD(0x001c, PIN_INPUT, 0) /* (A6) MCU_UART0_CTSn */
+			AM62X_MCU_IOPAD(0x0020, PIN_OUTPUT, 0) /* (B6) MCU_UART0_RTSn */
+			AM62X_MCU_IOPAD(0x0014, PIN_INPUT, 0) /* (B5) MCU_UART0_RXD */
+			AM62X_MCU_IOPAD(0x0018, PIN_OUTPUT, 0) /* (A5) MCU_UART0_TXD */
+		>;
+	};
+};
+
 &wkup_uart0 {
 	/* WKUP UART0 is used by DM firmware */
 	status = "reserved";
 };
 
 &mcu_uart0 {
-	status = "disabled";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mcu_uart0_pins_default>;
+	rs485-rts-active-low;
+	linux,rs485-enabled-at-boot-time;
 };
 
 &main_uart0 {
@@ -441,7 +466,10 @@
 
 &main_uart1 {
 	/* Main UART1 is used by TIFS firmware */
-	status = "reserved";
+	pinctrl-names = "default";
+	pinctrl-0 = <&main_uart1_pins_default>;
+	rs485-rts-active-low;
+	linux,rs485-enabled-at-boot-time;
 };
 
 &main_uart2 {

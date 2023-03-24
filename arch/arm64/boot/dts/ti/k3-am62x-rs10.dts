@@ -25,7 +25,10 @@
 
     misc-adv-gpio {
         compatible = "misc-adv-gpio";
+        pinctrl-names = "default";
+        pinctrl-0 = <&main_minipcie_pins>;
         status = "okay";
+        minipcie-airplane-gpio = <&main_gpio0 36 GPIO_ACTIVE_HIGH>;
         minipcie-pwr-gpio = <&main_gpio0 40 GPIO_ACTIVE_HIGH>;
         minipcie-reset-gpio = <&main_gpio0 35 GPIO_ACTIVE_LOW>;
         timing-interval = <300>;
@@ -38,5 +41,15 @@
 			opp-supported-hw = <0x01 0x0004>;
 			clock-latency-ns = <6000000>;
 		};
+	};
+};
+
+&main_pmx0 {
+	main_minipcie_pins: main-minipcie-pins {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x00a4, PIN_OUTPUT, 7) /* GPMC0_DIR.GPIO0_40 */
+			AM62X_IOPAD(0x0090, PIN_OUTPUT, 7) /* GPMC0_BE0N_CLE.GPIO0_35 */
+			AM62X_IOPAD(0x0094, PIN_OUTPUT, 7) /* GPMC0_BE1N.GPIO0_36 */
+		>;
 	};
 };

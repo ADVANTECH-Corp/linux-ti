@@ -126,7 +126,7 @@
 		vin-supply = <&vcc_3v3_sys>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&vdd_mmc_pins_default>;
-		gpio = <&main_gpio0 32 GPIO_ACTIVE_HIGH>;
+		gpios = <&main_gpio0 32 GPIO_ACTIVE_HIGH>;
 	};
 
 	vdd_sd_dv: regulator-4 {
@@ -185,8 +185,6 @@
 			AM62X_IOPAD(0x0094, PIN_OUTPUT, 7) /* (N20) GPMC0_BE1n */
 			AM62X_IOPAD(0x00ac, PIN_OUTPUT_PULLDOWN, 7) /* (L21) GPMC0_CSn1 */
 			AM62X_IOPAD(0x00b4, PIN_OUTPUT, 7) /* (K24) GPMC0_CSn3 */
-			AM62X_IOPAD(0x0088, PIN_OUTPUT, 7) /* (L24) GPMC0_OEn_REn */
-			AM62X_IOPAD(0x008c, PIN_OUTPUT, 7) /* (L25) GPMC0_WEn */
 			AM62X_IOPAD(0x0090, PIN_OUTPUT, 7) /* (M24) GPMC0_BE0n_CLE */
 			AM62X_IOPAD(0x00a0, PIN_OUTPUT, 7) /* (K25) GPMC0_WPn */
 			AM62X_IOPAD(0x00a4, PIN_OUTPUT, 7) /* (M22) GPMC0_DIR */
@@ -199,7 +197,7 @@
 			AM62X_IOPAD(0x1cc, PIN_OUTPUT, 0) /* (E14) UART0_TXD */
 		>;
 	};
-	
+
 	main_uart1_pins_default: main-uart1-pins-default {
 		pinctrl-single,pins = <
 			AM62X_IOPAD(0x01ac, PIN_INPUT, 2) /* (E19) MCASP0_AFSR.UART1_RXD */
@@ -320,6 +318,17 @@
 			AM62X_IOPAD(0x0254, PIN_OUTPUT, 0) /* (C20) USB0_DRVVBUS */
 		>;
 	};
+
+        main_wdt_en_1: wdt_engrp-1 {
+               pinctrl-single,pins = <
+                       AM62X_IOPAD(0x08c, PIN_OUTPUT, 7)    /* GPMC0_WEn.GPIO0_34 */
+               >;
+        };
+        main_wdt_ping_1: wdt_pinggrp-1 {
+               pinctrl-single,pins = <
+                       AM62X_IOPAD(0x088, PIN_OUTPUT, 7)    /* GPMC0_OEn_REn.GPIO0_33 */
+               >;
+        };
 };
 
 &mcu_pmx0 {
@@ -338,9 +347,15 @@
 	status = "reserved";
 };
 
+&wkup_rtc0 {
+	status = "disabled";
+};
+
 &mcu_uart0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&mcu_uart0_pins_default>;
+	rs485-rts-active-low;
+	linux,rs485-enabled-at-boot-time;
 };
 
 &main_uart0 {
@@ -351,6 +366,8 @@
 &main_uart1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_uart1_pins_default>;
+	rs485-rts-active-low;
+	linux,rs485-enabled-at-boot-time;
 };
 
 &main_uart2 {
@@ -381,6 +398,10 @@
 	status = "disabled";
 };
 
+&gpu {
+	status = "disabled";
+};
+
 &main_i2c0 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&main_i2c0_pins_default>;
@@ -397,10 +418,20 @@
 		reg = <0x30>;
 		status = "okay";
 	};
+
+	wdt@29 {
+         compatible = "fsl,adv-wdt-i2c";
+         pinctrl-names = "default";
+         pinctrl-0 = <&main_wdt_en_1 &main_wdt_ping_1>;
+         status = "okay";
+         wdt-en = <&main_gpio0 34 GPIO_ACTIVE_HIGH>;
+         wdt-ping = <&main_gpio0 33 GPIO_ACTIVE_HIGH>;
+         reg = <0x29>;
+    };
 };
 
 &main_i2c2 {
-	status = "okay";
+	status = "disabled";
 };
 
 &main_i2c3 {
@@ -425,6 +456,10 @@
 };
 
 &sdhci2 {
+	status = "disabled";
+};
+
+&dss {
 	status = "disabled";
 };
 
@@ -481,7 +516,6 @@
 	};
 };
 
-
 &mcasp0 {
 	status = "disabled";
 };
@@ -499,23 +533,6 @@
 		ti,mbox-rx = <0 0 0>;
 		ti,mbox-tx = <1 0 0>;
 	};
-
-	mbox_r5_0: mbox-r5-0 {
-		ti,mbox-rx = <2 0 0>;
-		ti,mbox-tx = <3 0 0>;
-	};
-};
-
-&mcu_m4fss {
-	mboxes = <&mailbox0_cluster0 &mbox_m4_0>;
-	memory-region = <&mcu_m4fss_dma_memory_region>,
-			<&mcu_m4fss_memory_region>;
-};
-
-&wkup_r5fss0_core0 {
-	mboxes = <&mailbox0_cluster0 &mbox_r5_0>;
-	memory-region = <&wkup_r5fss0_core0_dma_memory_region>,
-			<&wkup_r5fss0_core0_memory_region>;
 };
 
 &main_mcan0 {
@@ -553,5 +570,29 @@
 };
 
 &ecap2_pwm {
+	status = "disabled";
+};
+
+&main_rti0 {
+        status = "disabled";
+};
+
+&main_rti1 {
+        status = "disabled";
+};
+
+&main_rti2 {
+        status = "disabled";
+};
+
+&main_rti3 {
+        status = "disabled";
+};
+
+&main_rti15 {
+        status = "disabled";
+};
+
+&ti_csi2rx0 {
 	status = "disabled";
 };
