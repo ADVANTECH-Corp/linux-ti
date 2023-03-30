@@ -26,7 +26,7 @@
     misc-adv-gpio {
         compatible = "misc-adv-gpio";
         pinctrl-names = "default";
-        pinctrl-0 = <&main_minipcie_pins>;
+        pinctrl-0 = <&main_minipcie_pins &main_gpios_pins_default>;
         status = "okay";
         minipcie-airplane-gpio = <&main_gpio0 36 GPIO_ACTIVE_HIGH>;
         minipcie-pwr-gpio = <&main_gpio0 40 GPIO_ACTIVE_HIGH>;
@@ -50,6 +50,17 @@
 			AM62X_IOPAD(0x00a4, PIN_OUTPUT, 7) /* GPMC0_DIR.GPIO0_40 */
 			AM62X_IOPAD(0x0090, PIN_OUTPUT, 7) /* GPMC0_BE0N_CLE.GPIO0_35 */
 			AM62X_IOPAD(0x0094, PIN_OUTPUT, 7) /* GPMC0_BE1N.GPIO0_36 */
+		>;
+	};
+
+	main_gpios_pins_default: main-gpios-pins-default {
+		pinctrl-single,pins = <
+			AM62X_IOPAD(0x0098, PIN_INPUT, 7) /* (U23) GPMC0_WAIT0.GPIO0_37 */
+			AM62X_IOPAD(0x009c, PIN_OUTPUT, 7) /* (V25) GPMC0_WAIT1.GPIO0_38 */
+			AM62X_IOPAD(0x00ac, PIN_OUTPUT, 7) /* (L21) GPMC0_CSn1.GPIO0_42 */
+			AM62X_IOPAD(0x00b0, PIN_OUTPUT, 7) /* (K22) GPMC0_CSn2.GPIO0_43 */
+			AM62X_IOPAD(0x00b4, PIN_OUTPUT, 7) /* (K24) GPMC0_CSn3.GPIO0_44 */
+			AM62X_IOPAD(0x00a0, PIN_OUTPUT, 7) /* (K25) GPMC0_WPn.GPIO0_39 */
 		>;
 	};
 };
