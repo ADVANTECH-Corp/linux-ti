@@ -440,6 +440,13 @@
 	pinctrl-0 = <&main_mmc1_pins_default>;
 	ti,driver-strength-ohm = <50>;
 	disable-wp;
+	/delete-property/ ti,otap-del-sel-sdr12;
+	/delete-property/ ti,otap-del-sel-sdr25;
+	/delete-property/ ti,otap-del-sel-sdr50;
+	/delete-property/ ti,otap-del-sel-sdr104;
+	/delete-property/ ti,otap-del-sel-ddr50;
+	/delete-property/ ti,itap-del-sel-sdr12;
+	/delete-property/ ti,itap-del-sel-sdr25;
 };
 
 &sdhci2 {
